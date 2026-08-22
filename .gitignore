@@ -9,3 +9,6 @@ yarn-error.log
 *.js.map
 .log
 /generated/
+
+# obsidian
+/data.json
