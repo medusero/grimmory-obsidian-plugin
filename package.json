@@ -1,0 +1,23 @@
+{
+  "name": "grimmory-obsidian-plugin",
+  "version": "1.0.0",
+  "description": "Obsidian's plugin to connect to Grimmory",
+  "type": "commonjs",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "node esbuild.config.mjs",
+    "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production"
+},
+  "devDependencies": {
+    "@types/node": "^26.2.0",
+    "builtin-modules": "^5.3.0",
+    "esbuild": "^0.28.2",
+    "obsidian": "^1.13.1",
+    "tslib": "^2.8.1",
+    "typescript": "^7.0.2"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true
+  }
+}
