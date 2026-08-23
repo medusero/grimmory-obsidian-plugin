@@ -6,6 +6,8 @@ export interface GrimmorySyncSettings {
     accessToken: string;
     refreshToken: string;
     tokenExpiresAt: number;
+    outputFolder: string;
+    notePrefix: string;
 }
 
 export const DEFAULT_SETTINGS: GrimmorySyncSettings = {
@@ -13,6 +15,8 @@ export const DEFAULT_SETTINGS: GrimmorySyncSettings = {
     accessToken: "",
     refreshToken: "",
     tokenExpiresAt: 0,
+    outputFolder: "",
+    notePrefix: "",
 };
 
 export class GrimmorySettingTab extends PluginSettingTab {
@@ -85,5 +89,29 @@ export class GrimmorySettingTab extends PluginSettingTab {
                         }
                     })
             })
+        new Setting(containerEl)
+            .setName("Folder")
+            .setDesc("Your book's folder")
+            .addText((text) =>
+                text
+                    .setPlaceholder("Your book's folder")
+                    .setValue(this.plugin.settings.outputFolder)
+                    .onChange(async (value) => {
+                        this.plugin.settings.outputFolder = value;
+                        await this.plugin.saveSettings();
+                    }),
+            );
+        new Setting(containerEl)
+            .setName("Prefix")
+            .setDesc("Add a prefix to your book's notes")
+            .addText((text) =>
+                text
+                    .setPlaceholder("Prefix")
+                    .setValue(this.plugin.settings.notePrefix)
+                    .onChange(async (value) => {
+                        this.plugin.settings.notePrefix = value;
+                        await this.plugin.saveSettings();
+                    }),
+            );
     }
 }
