@@ -1,14 +1,18 @@
 # npm
 node_modules
 .yarn
-yarn-error.log
 
 # build
 /main.js
 /styles.css
 *.js.map
-.log
+*.log
 /generated/
+*.tsbuildinfo
 
 # obsidian
 /data.json
+
+# editors
+.vscode/
+.idea/
