@@ -40,6 +40,11 @@ export interface BookEntry {
     createdAt?: string;
 }
 
+export interface Book {
+    bookId: number;
+    bookTitle: string;
+}
+
 export default class GrimmorySync extends Plugin {
     settings!: GrimmorySyncSettings;
     async onload(): Promise<void> {
@@ -143,5 +148,10 @@ export default class GrimmorySync extends Plugin {
             };
         });
         return [...fromHighlights, ...fromOrphanNotes];
+    }
+
+    async getBooks(): Promise<Book[]> {
+        const response = await this.authorizedRequest(`/api/v1/notebook/books`)
+        return response.json;
     }
 }
