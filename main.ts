@@ -1,4 +1,4 @@
-import { Plugin, Notice, RequestUrlResponse, requestUrl } from "obsidian";
+import { Plugin, Notice, RequestUrlResponse, TFile, requestUrl, getFrontMatterInfo } from "obsidian";
 import {
     GrimmorySyncSettings,
     GrimmorySettingTab,
@@ -153,5 +153,23 @@ export default class GrimmorySync extends Plugin {
     async getBooks(): Promise<Book[]> {
         const response = await this.authorizedRequest(`/api/v1/notebook/books`)
         return response.json;
+    }
+
+    findNoteFile(bookId: number): TFile | undefined {
+        const checkNote = this.app.vault.getMarkdownFiles().find(
+            (file) =>
+                this.app.metadataCache.getFileCache(file)?.frontmatter?.['grimmory-book-id'] == bookId)
+        return checkNote
+    }
+
+    sanitizeTitle(title: string): string {
+        return title.replace(/[:/\\?"*<>|]/g, '');
+    }
+
+    buildNotePath(bookTitle: string): string {
+        const fileName = this.settings.notePrefix + this.sanitizeTitle(bookTitle) + '.md';
+        return this.settings.outputFolder
+            ? `${this.settings.outputFolder}/${fileName}`
+            : fileName;
     }
 }
