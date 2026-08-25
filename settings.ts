@@ -8,6 +8,7 @@ export interface GrimmorySyncSettings {
     tokenExpiresAt: number;
     outputFolder: string;
     notePrefix: string;
+    headingLevel: number;
 }
 
 export const DEFAULT_SETTINGS: GrimmorySyncSettings = {
@@ -17,6 +18,7 @@ export const DEFAULT_SETTINGS: GrimmorySyncSettings = {
     tokenExpiresAt: 0,
     outputFolder: "",
     notePrefix: "",
+    headingLevel: 3,
 };
 
 export class GrimmorySettingTab extends PluginSettingTab {
@@ -113,5 +115,22 @@ export class GrimmorySettingTab extends PluginSettingTab {
                         await this.plugin.saveSettings();
                     }),
             );
+        new Setting(containerEl)
+            .setName("Heading level")
+            .setDesc("Heading level (H1-H6) for chapter titles")
+            .addDropdown((dropdown) => {
+                dropdown
+                    .addOption('1', 'H1')
+                    .addOption('2', 'H2')
+                    .addOption('3', 'H3')
+                    .addOption('4', 'H4')
+                    .addOption('5', 'H5')
+                    .addOption('6', 'H6')
+                    .setValue(String(this.plugin.settings.headingLevel))
+                    .onChange(async (value) => {
+                        this.plugin.settings.headingLevel = Number(value);
+                        await this.plugin.saveSettings();
+                    });
+            });
     }
 }
