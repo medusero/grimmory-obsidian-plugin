@@ -1,4 +1,4 @@
-import { Plugin, Notice, RequestUrlResponse, TFile, requestUrl, getFrontMatterInfo } from "obsidian";
+import { Plugin, Notice, RequestUrlResponse, TFile, requestUrl } from "obsidian";
 import {
     GrimmorySyncSettings,
     GrimmorySettingTab,
@@ -172,4 +172,26 @@ export default class GrimmorySync extends Plugin {
             ? `${this.settings.outputFolder}/${fileName}`
             : fileName;
     }
+
+    renderEntries(entries: BookEntry[]): string {
+        const sorted = [...entries].sort((a, b) => a.cfi.localeCompare(b.cfi));
+        const headingPrefix = '#'.repeat(this.settings.headingLevel);
+        let output = '';
+        let lastChapter: string | undefined = undefined;
+        for (const entry of sorted) {
+            if (entry.chapterTitle !== lastChapter) {
+                lastChapter = entry.chapterTitle
+                output += `${ headingPrefix } ${ lastChapter }\n\n`
+            }
+            if (entry.highlightText) {
+                output += `> ${entry.highlightText}\n\n`
+            }
+            if (entry.noteText) {
+                output += `${entry.noteText}\n\n`
+            }
+        }
+        return output
+    }
+
+
 }
