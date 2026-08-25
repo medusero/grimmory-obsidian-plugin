@@ -183,11 +183,11 @@ export default class GrimmorySync extends Plugin {
                 lastChapter = entry.chapterTitle
                 output += `${ headingPrefix } ${ lastChapter }\n\n`
             }
-            if (entry.highlightText) {
-                output += `> ${entry.highlightText}\n\n`
-            }
             if (entry.noteText) {
                 output += `${entry.noteText}\n\n`
+            }
+            if (entry.highlightText) {
+                output += `> ${entry.highlightText}\n\n`
             }
         }
         return output
@@ -203,4 +203,13 @@ export default class GrimmorySync extends Plugin {
         const bookNote = grimmoryFrontmatter + grimmoryZoneStart + this.renderEntries(entries) + grimmoryZoneEnd
         return bookNote
     }
+
+    async createNote(book: Book, entries: BookEntry[]): Promise<void> {
+        if (this.settings.outputFolder && !this.app.vault.getAbstractFileByPath(this.settings.outputFolder)) {
+            await this.app.vault.createFolder(this.settings.outputFolder);
+        }
+        await this.app.vault.create(this.buildNotePath(book.bookTitle),
+            this.buildInitialContent(book.bookId, entries),
+        )
+    };
 }
