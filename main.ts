@@ -193,5 +193,14 @@ export default class GrimmorySync extends Plugin {
         return output
     }
 
-
+    buildInitialContent(bookId: number, entries: BookEntry[]): string {
+        const separator = '---'
+        const propertySync = 'grimmory-sync: active'
+        const propertyBookId = 'grimmory-book-id: '
+        const grimmoryFrontmatter = `${separator}\n${propertySync}\n${propertyBookId}${bookId}\n${separator}\n`
+        const grimmoryZoneStart = '\n<!-- grimmory-sync:start -->\n'
+        const grimmoryZoneEnd = '\n<!-- grimmory-sync:end -->'
+        const bookNote = grimmoryFrontmatter + grimmoryZoneStart + this.renderEntries(entries) + grimmoryZoneEnd
+        return bookNote
+    }
 }
