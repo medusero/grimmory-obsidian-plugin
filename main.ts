@@ -175,6 +175,12 @@ export default class GrimmorySync extends Plugin {
         return title.replace(/[:/\\?"*<>|]/g, '');
     }
 
+    cfiToNumbers(cfi: string): number[] {
+        const cfiStrings = cfi.match(/\d+/g)
+        const cfiNumbers = cfiStrings?.map(Number) ?? []
+        return cfiNumbers
+    }
+
     buildNotePath(bookTitle: string): string {
         const fileName = this.settings.notePrefix + this.sanitizeTitle(bookTitle) + '.md';
         return this.settings.outputFolder
