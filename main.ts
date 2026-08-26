@@ -181,6 +181,17 @@ export default class GrimmorySync extends Plugin {
         return cfiNumbers
     }
 
+    compareCfi(a: string, b: string): number {
+        const cfiA = this.cfiToNumbers(a)
+        const cfiB = this.cfiToNumbers(b)
+        const length = Math.min(cfiA.length, cfiB.length)
+        for (let i = 0; i < length; i++) {
+            if (cfiA[i] !== cfiB[i])
+                return cfiA[i] - cfiB[i]
+        }
+        return cfiA.length - cfiB.length
+    }
+
     buildNotePath(bookTitle: string): string {
         const fileName = this.settings.notePrefix + this.sanitizeTitle(bookTitle) + '.md';
         return this.settings.outputFolder
