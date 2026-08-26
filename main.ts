@@ -45,6 +45,10 @@ export interface Book {
     bookTitle: string;
 }
 
+const separatorStart = '<!-- grimmory-sync:start -->'
+const separatorEnd = '<!-- grimmory-sync:end -->'
+
+
 export default class GrimmorySync extends Plugin {
     settings!: GrimmorySyncSettings;
     async onload(): Promise<void> {
@@ -162,6 +166,11 @@ export default class GrimmorySync extends Plugin {
         return checkNote
     }
 
+    isNoteActive(file: TFile): boolean {
+        const checkProperty = this.app.metadataCache.getFileCache(file)?.frontmatter?.['grimmory-sync'] == 'active'
+        return checkProperty;
+    }
+
     sanitizeTitle(title: string): string {
         return title.replace(/[:/\\?"*<>|]/g, '');
     }
@@ -198,8 +207,8 @@ export default class GrimmorySync extends Plugin {
         const propertySync = 'grimmory-sync: active'
         const propertyBookId = 'grimmory-book-id: '
         const grimmoryFrontmatter = `${separator}\n${propertySync}\n${propertyBookId}${bookId}\n${separator}\n`
-        const grimmoryZoneStart = '\n<!-- grimmory-sync:start -->\n'
-        const grimmoryZoneEnd = '\n<!-- grimmory-sync:end -->'
+        const grimmoryZoneStart = `\n${separatorStart}\n`
+        const grimmoryZoneEnd = `\n${separatorEnd}`
         const bookNote = grimmoryFrontmatter + grimmoryZoneStart + this.renderEntries(entries) + grimmoryZoneEnd
         return bookNote
     }
@@ -212,4 +221,10 @@ export default class GrimmorySync extends Plugin {
             this.buildInitialContent(book.bookId, entries),
         )
     };
+
+    replaceManagedZone(content: string, entries: BookEntry[]): string {
+        const [before, rest] = content.split(separatorStart)
+        const [, after] = rest.split(separatorEnd)
+        return before + `\n${separatorStart}\n` + this.renderEntries(entries) + `\n${separatorEnd}` + after
+    }
 }
