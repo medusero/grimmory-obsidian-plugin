@@ -225,6 +225,15 @@ export default class GrimmorySync extends Plugin {
     replaceManagedZone(content: string, entries: BookEntry[]): string {
         const [before, rest] = content.split(separatorStart)
         const [, after] = rest.split(separatorEnd)
-        return before + `\n${separatorStart}\n` + this.renderEntries(entries) + `\n${separatorEnd}` + after
+        return before + `${separatorStart}\n` + this.renderEntries(entries) + `\n${separatorEnd}` + after
+    }
+
+    async updateNote(file: TFile, entries: BookEntry[]): Promise<void> {
+        if (!this.isNoteActive(file)) {
+            return
+        }
+        const oldContent = await this.app.vault.read(file)
+        const newContent = this.replaceManagedZone(oldContent, entries)
+        await this.app.vault.modify(file, newContent)
     }
 }
