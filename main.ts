@@ -200,7 +200,7 @@ export default class GrimmorySync extends Plugin {
     }
 
     renderEntries(entries: BookEntry[]): string {
-        const sorted = [...entries].sort((a, b) => a.cfi.localeCompare(b.cfi));
+        const sorted = [...entries].sort((a, b) => this.compareCfi(a.cfi, b.cfi));
         const headingPrefix = '#'.repeat(this.settings.headingLevel);
         let output = '';
         let lastChapter: string | undefined = undefined;
