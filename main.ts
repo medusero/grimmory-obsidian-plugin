@@ -66,6 +66,14 @@ export default class GrimmorySync extends Plugin {
                 }
             }
         })
+        this.addRibbonIcon("book-open-check", "Sync Grimmory", async () => {
+            try {
+                await this.syncAllBooks()
+            }
+            catch {
+                new Notice("Sync failed")
+            }
+        })
         new Notice("Plugin cargado");
     }
     async loadSettings() {
