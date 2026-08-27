@@ -4,7 +4,6 @@ import {
     GrimmorySettingTab,
     DEFAULT_SETTINGS,
 } from "./settings";
-import { X509Certificate } from "crypto";
 
 export interface Annotation {
     id: number;
@@ -55,6 +54,18 @@ export default class GrimmorySync extends Plugin {
     async onload(): Promise<void> {
         await this.loadSettings();
         this.addSettingTab(new GrimmorySettingTab(this.app, this));
+        this.addCommand({
+            id: 'sync-grimmory',
+            name: 'Sync Notes from Grimmory',
+            callback: async () => {
+                try {
+                    await this.syncAllBooks()
+                }
+                catch {
+                    new Notice("Sync failed")
+                }
+            }
+        })
         new Notice("Plugin cargado");
     }
     async loadSettings() {
