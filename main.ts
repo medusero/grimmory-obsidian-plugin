@@ -4,6 +4,7 @@ import {
     GrimmorySettingTab,
     DEFAULT_SETTINGS,
 } from "./settings";
+import { X509Certificate } from "crypto";
 
 export interface Annotation {
     id: number;
@@ -263,5 +264,25 @@ export default class GrimmorySync extends Plugin {
         else {
             await this.createNote(book, entries)
         }
+    }
+
+    async syncAllBooks(): Promise<void> {
+        const books = await this.getBooks()
+        let succeeded = 0
+        const errors: string[] = []
+        for (const book of books) {
+            try {
+                await this.syncBook(book)
+                succeeded += 1
+            } catch (error) {
+                errors.push(`${book.bookTitle}`)
+                console.error(error)
+            }
+        }
+        let message = `${succeeded} notes synced.`
+        if (errors.length > 0) {
+            message += ` ${errors.length} failed: ${errors.join(", ")}`
+        }
+        new Notice(message)
     }
 }
