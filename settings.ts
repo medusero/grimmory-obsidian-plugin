@@ -1,4 +1,4 @@
-import { App, PluginSettingTab, requestUrl, Setting, Notice} from "obsidian";
+import { App, PluginSettingTab, requestUrl, Setting, Notice, AbstractInputSuggest, TFolder} from "obsidian";
 import GrimmorySync from "./main";
 
 export interface GrimmorySyncSettings {
@@ -20,6 +20,21 @@ export const DEFAULT_SETTINGS: GrimmorySyncSettings = {
     notePrefix: "",
     headingLevel: 3,
 };
+
+export class FolderSuggest extends AbstractInputSuggest<TFolder> {
+    constructor(app: App, textInputEl: HTMLInputElement) {
+        super(app, textInputEl)
+    }
+
+    protected getSuggestions(query: string): TFolder[] | Promise<TFolder[]> {
+        const folders = this.app.vault.getAllFolders(true);
+        return folders.filter((folder) =>
+            folder.path.includes(query))
+    }
+    renderSuggestion(value: TFolder, el: HTMLElement): void {
+        el.setText(value.isRoot() ? "/ [Vault root]" : value.path);
+    }
+}
 
 export class GrimmorySettingTab extends PluginSettingTab {
     plugin: GrimmorySync;
@@ -94,15 +109,21 @@ export class GrimmorySettingTab extends PluginSettingTab {
         new Setting(containerEl)
             .setName("Folder")
             .setDesc("Your book's folder")
-            .addText((text) =>
+            .addText((text) => {
                 text
                     .setPlaceholder("Your book's folder")
                     .setValue(this.plugin.settings.outputFolder)
                     .onChange(async (value) => {
                         this.plugin.settings.outputFolder = value;
                         await this.plugin.saveSettings();
-                    }),
-            );
+                    })
+                    new FolderSuggest(this.app, text.inputEl).onSelect((folder, evt) => {
+                        text.setValue(folder.path)
+                        this.plugin.settings.outputFolder = folder.path;
+                        this.plugin.saveSettings();
+                })
+                return text
+        });
         new Setting(containerEl)
             .setName("Prefix")
             .setDesc("Add a prefix to your book's notes")
