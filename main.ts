@@ -253,4 +253,15 @@ export default class GrimmorySync extends Plugin {
         const newContent = this.replaceManagedZone(oldContent, entries)
         await this.app.vault.modify(file, newContent)
     }
+
+    async syncBook(book: Book): Promise<void> {
+        const entries = await this.getBookEntries(book.bookId)
+        const file = this.findNoteFile(book.bookId)
+        if (file) {
+            await this.updateNote(file, entries)
+        }
+        else {
+            await this.createNote(book, entries)
+        }
+    }
 }
