@@ -9,6 +9,7 @@ export interface GrimmorySyncSettings {
     outputFolder: string;
     notePrefix: string;
     headingLevel: number;
+    noteLabel: string;
 }
 
 export const DEFAULT_SETTINGS: GrimmorySyncSettings = {
@@ -19,6 +20,7 @@ export const DEFAULT_SETTINGS: GrimmorySyncSettings = {
     outputFolder: "",
     notePrefix: "",
     headingLevel: 3,
+    noteLabel: "**Note:** ",
 };
 
 export class FolderSuggest extends AbstractInputSuggest<TFolder> {
@@ -126,7 +128,7 @@ export class GrimmorySettingTab extends PluginSettingTab {
         });
         new Setting(containerEl)
             .setName("Prefix")
-            .setDesc("Add a prefix to your book's notes")
+            .setDesc("Add a prefix to your book's files")
             .addText((text) =>
                 text
                     .setPlaceholder("Prefix")
@@ -153,5 +155,17 @@ export class GrimmorySettingTab extends PluginSettingTab {
                         await this.plugin.saveSettings();
                     });
             });
+        new Setting(containerEl)
+            .setName("Label")
+            .setDesc("Add a label to your book's notes")
+            .addText((text) =>
+                text
+                    .setPlaceholder("Label")
+                    .setValue(this.plugin.settings.noteLabel)
+                    .onChange(async (value) => {
+                        this.plugin.settings.noteLabel = value;
+                        await this.plugin.saveSettings();
+                    }),
+            );
     }
 }

@@ -222,6 +222,7 @@ export default class GrimmorySync extends Plugin {
     renderEntries(entries: BookEntry[]): string {
         const sorted = [...entries].sort((a, b) => this.compareCfi(a.cfi, b.cfi));
         const headingPrefix = '#'.repeat(this.settings.headingLevel);
+        const breakline = '***';
         let output = '';
         let lastChapter: string | undefined = undefined;
         for (const entry of sorted) {
@@ -230,11 +231,12 @@ export default class GrimmorySync extends Plugin {
                 output += `${ headingPrefix } ${ lastChapter }\n\n`
             }
             if (entry.noteText) {
-                output += `${entry.noteText}\n\n`
+                output += `${this.settings.noteLabel}${entry.noteText}\n\n`
             }
             if (entry.highlightText) {
                 output += `> ${entry.highlightText}\n\n`
             }
+            output += `${breakline}\n\n`
         }
         return output
     }
