@@ -230,11 +230,11 @@ export default class GrimmorySync extends Plugin {
                 lastChapter = entry.chapterTitle
                 output += `${ headingPrefix } ${ lastChapter }\n\n`
             }
-            if (entry.noteText) {
-                output += `${this.settings.noteLabel}${entry.noteText}\n\n`
-            }
             if (entry.highlightText) {
                 output += `> ${entry.highlightText}\n\n`
+            }
+            if (entry.noteText) {
+                output += `${this.settings.noteLabel}${entry.noteText}\n\n`
             }
             output += `${breakline}\n\n`
         }
