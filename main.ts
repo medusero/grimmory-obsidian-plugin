@@ -51,8 +51,8 @@ export interface Book {
     bookTitle: string;
 }
 
-const separatorStart = "<!-- grimmory-sync:start -->";
-const separatorEnd = "<!-- grimmory-sync:end -->";
+const separatorStart = "<!-- gs:start -->";
+const separatorEnd = "<!-- gs:end -->";
 
 export default class GrimmorySync extends Plugin {
     settings!: GrimmorySyncSettings;
@@ -188,7 +188,7 @@ export default class GrimmorySync extends Plugin {
             .find(
                 (file) =>
                     this.app.metadataCache.getFileCache(file)?.frontmatter?.[
-                        "grimmory-book-id"
+                        "gs-book-id"
                     ] == bookId,
             );
         return checkNote;
@@ -197,7 +197,7 @@ export default class GrimmorySync extends Plugin {
     isNoteActive(file: TFile): boolean {
         const checkProperty =
             this.app.metadataCache.getFileCache(file)?.frontmatter?.[
-                "grimmory-sync"
+                "gs-state"
             ] == "active";
         return checkProperty;
     }
@@ -260,8 +260,8 @@ export default class GrimmorySync extends Plugin {
 
     buildInitialContent(bookId: number, entries: BookEntry[]): string {
         const separator = "---";
-        const propertySync = "grimmory-sync: active";
-        const propertyBookId = "grimmory-book-id: ";
+        const propertySync = "gs-state: active";
+        const propertyBookId = "gs-book-id: ";
         const grimmoryFrontmatter = `${separator}\n${propertySync}\n${propertyBookId}${bookId}\n${separator}\n`;
         const grimmoryZoneStart = `\n${separatorStart}\n`;
         const grimmoryZoneEnd = `\n${separatorEnd}`;
