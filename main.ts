@@ -224,8 +224,13 @@ export default class GrimmorySync extends Plugin {
         const headingPrefix = '#'.repeat(this.settings.headingLevel);
         const breakline = '***';
         let output = '';
+        let first = true;
         let lastChapter: string | undefined = undefined;
         for (const entry of sorted) {
+            if (!first) {
+                output += `${breakline}\n\n`
+            }
+            first = false
             if (entry.chapterTitle !== lastChapter) {
                 lastChapter = entry.chapterTitle
                 output += `${ headingPrefix } ${ lastChapter }\n\n`
@@ -236,7 +241,6 @@ export default class GrimmorySync extends Plugin {
             if (entry.noteText) {
                 output += `${this.settings.noteLabel}${entry.noteText}\n\n`
             }
-            output += `${breakline}\n\n`
         }
         return output
     }
