@@ -50,6 +50,7 @@ export class GrimmorySettingTab extends PluginSettingTab {
         let username = "";
         let password = "";
         const { containerEl } = this;
+        containerEl.empty();
         new Setting(containerEl)
             .setName("Base URL")
             .setDesc("URL from your Grimmory instance")
@@ -62,6 +63,11 @@ export class GrimmorySettingTab extends PluginSettingTab {
                         await this.plugin.saveSettings();
                     }),
             );
+        new Setting(containerEl)
+            .setDesc(createFragment((frag) => {
+                frag.createEl("strong", { text: "Note: " });
+                frag.appendText("Username and password are used once to obtain an access token and are not stored anywhere.");
+            }));
         new Setting(containerEl)
             .setName("Username")
             .setDesc("Your Grimmory's username")
