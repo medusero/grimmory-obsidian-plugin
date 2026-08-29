@@ -4,7 +4,7 @@ import builtins from "builtin-modules";
 
 const banner = `/* Generado por esbuild — plugin Grimmory Sync */\n`;
 
-const prod = (process.argv[2] === "production");
+const prod = process.argv[2] === "production";
 
 const context = await esbuild.context({
     banner: { js: banner },

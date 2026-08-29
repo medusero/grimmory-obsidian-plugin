@@ -1,4 +1,12 @@
-import { App, PluginSettingTab, requestUrl, Setting, Notice, AbstractInputSuggest, TFolder} from "obsidian";
+import {
+    App,
+    PluginSettingTab,
+    requestUrl,
+    Setting,
+    Notice,
+    AbstractInputSuggest,
+    TFolder,
+} from "obsidian";
 import GrimmorySync from "./main";
 
 export interface GrimmorySyncSettings {
@@ -25,13 +33,12 @@ export const DEFAULT_SETTINGS: GrimmorySyncSettings = {
 
 export class FolderSuggest extends AbstractInputSuggest<TFolder> {
     constructor(app: App, textInputEl: HTMLInputElement) {
-        super(app, textInputEl)
+        super(app, textInputEl);
     }
 
     protected getSuggestions(query: string): TFolder[] | Promise<TFolder[]> {
         const folders = this.app.vault.getAllFolders(true);
-        return folders.filter((folder) =>
-            folder.path.includes(query))
+        return folders.filter((folder) => folder.path.includes(query));
     }
     renderSuggestion(value: TFolder, el: HTMLElement): void {
         el.setText(value.isRoot() ? "/ [Vault root]" : value.path);
@@ -63,75 +70,77 @@ export class GrimmorySettingTab extends PluginSettingTab {
                         await this.plugin.saveSettings();
                     }),
             );
-        new Setting(containerEl)
-            .setDesc(createFragment((frag) => {
+        new Setting(containerEl).setDesc(
+            createFragment((frag) => {
                 frag.createEl("strong", { text: "Note: " });
-                frag.appendText("Username and password are used once to obtain an access token and are not stored anywhere.");
-            }));
+                frag.appendText(
+                    "Username and password are used once to obtain an access token and are not stored anywhere.",
+                );
+            }),
+        );
         new Setting(containerEl)
             .setName("Username")
             .setDesc("Your Grimmory's username")
             .addText((text) =>
-                text
-                    .setPlaceholder("Your username")
-                    .onChange(async (value) => {
-                        username = value;
-                    }),
+                text.setPlaceholder("Your username").onChange(async (value) => {
+                    username = value;
+                }),
             );
         new Setting(containerEl)
             .setName("Password")
             .setDesc("Your Grimmory's password")
             .addText((text) => {
-                text.inputEl.type = "password"
-                text
-                    .setPlaceholder("Your password")
-                    .onChange(async (value) => {
-                        password = value;
-                    })
+                text.inputEl.type = "password";
+                text.setPlaceholder("Your password").onChange(async (value) => {
+                    password = value;
+                });
             });
-        new Setting(containerEl)
-            .addButton((button) => {
-                button
-                    .setButtonText("Login")
-                    .onClick(async () => {
-                        try {
-                            const response = await requestUrl({
-                                url: `${this.plugin.settings.baseUrl}/api/v1/auth/login`,
-                                method: "POST",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({ "username": username, "password": password }),
-                            });
-                            this.plugin.settings.accessToken = response.json.accessToken
-                            this.plugin.settings.refreshToken = response.json.refreshToken
-                            const seconds = response.json.expires
-                            const miliseconds = seconds * 1000
-                            const expires = Date.now() + miliseconds
-                            this.plugin.settings.tokenExpiresAt = expires
-                            await this.plugin.saveSettings()
-                            new Notice("Login successful")
-                        } catch (error) {
-                            new Notice("Something had failed")
-                        }
-                    })
-            })
+        new Setting(containerEl).addButton((button) => {
+            button.setButtonText("Login").onClick(async () => {
+                try {
+                    const response = await requestUrl({
+                        url: `${this.plugin.settings.baseUrl}/api/v1/auth/login`,
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            username: username,
+                            password: password,
+                        }),
+                    });
+                    this.plugin.settings.accessToken =
+                        response.json.accessToken;
+                    this.plugin.settings.refreshToken =
+                        response.json.refreshToken;
+                    const seconds = response.json.expires;
+                    const miliseconds = seconds * 1000;
+                    const expires = Date.now() + miliseconds;
+                    this.plugin.settings.tokenExpiresAt = expires;
+                    await this.plugin.saveSettings();
+                    new Notice("Login successful");
+                } catch (error) {
+                    new Notice("Something had failed");
+                }
+            });
+        });
         new Setting(containerEl)
             .setName("Folder")
             .setDesc("Your book's folder")
             .addText((text) => {
-                text
-                    .setPlaceholder("Your book's folder")
+                text.setPlaceholder("Your book's folder")
                     .setValue(this.plugin.settings.outputFolder)
                     .onChange(async (value) => {
                         this.plugin.settings.outputFolder = value;
                         await this.plugin.saveSettings();
-                    })
-                    new FolderSuggest(this.app, text.inputEl).onSelect((folder, evt) => {
-                        text.setValue(folder.path)
+                    });
+                new FolderSuggest(this.app, text.inputEl).onSelect(
+                    (folder, evt) => {
+                        text.setValue(folder.path);
                         this.plugin.settings.outputFolder = folder.path;
                         this.plugin.saveSettings();
-                })
-                return text
-        });
+                    },
+                );
+                return text;
+            });
         new Setting(containerEl)
             .setName("Prefix")
             .setDesc("Add a prefix to your book's files")
@@ -149,12 +158,12 @@ export class GrimmorySettingTab extends PluginSettingTab {
             .setDesc("Heading level (H1-H6) for chapter titles")
             .addDropdown((dropdown) => {
                 dropdown
-                    .addOption('1', 'H1')
-                    .addOption('2', 'H2')
-                    .addOption('3', 'H3')
-                    .addOption('4', 'H4')
-                    .addOption('5', 'H5')
-                    .addOption('6', 'H6')
+                    .addOption("1", "H1")
+                    .addOption("2", "H2")
+                    .addOption("3", "H3")
+                    .addOption("4", "H4")
+                    .addOption("5", "H5")
+                    .addOption("6", "H6")
                     .setValue(String(this.plugin.settings.headingLevel))
                     .onChange(async (value) => {
                         this.plugin.settings.headingLevel = Number(value);
