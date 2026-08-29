@@ -2,7 +2,7 @@
 
 An Obsidian plugin that syncs your book highlights and notes from a self-hosted [Grimmory](https://github.com/grimmory-tools/grimmory) instance into your vault.
 
-Each book becomes a Markdown note: highlights as blockquotes with their notes underneath, grouped by chapter and ordered by their position in the book. On re-sync only the managed zone of the note is rewritten, delimited by `<!-- gs:start -->` and `<!-- gs:end -->`; anything else you add, including the frontmatter, is left untouched.
+Each book becomes a Markdown note: highlights as blockquotes with their notes underneath, grouped by chapter and ordered by their position in the book. On re-sync only the managed zone of the note is rewritten — the span between its `gs:start` and `gs:end` HTML-comment markers; anything else you add, including the frontmatter, is left untouched.
 
 Works on desktop and mobile.
 
@@ -29,7 +29,7 @@ Run a sync from the ribbon icon (**Sync Grimmory**) or the **Grimmory Sync: Sync
 
 - If a book has no note, one is created.
 - If it already has one, only its managed zone is updated; everything else is kept.
-- To stop syncing a book, change `gs-state` from `active` to any other value in its note's frontmatter, or remove `gs-state` and `gs-book-id` and delete the `<!-- gs:start -->` / `<!-- gs:end -->` lines entirely.
+- To stop syncing a book, change `gs-state` from `active` to any other value in its note's frontmatter, or remove `gs-state` and `gs-book-id` and delete the plugin's `gs:start` / `gs:end` marker lines entirely.
 
 ## License
 

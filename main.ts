@@ -11,6 +11,12 @@ import {
     DEFAULT_SETTINGS,
 } from "./settings";
 
+export interface AuthResponse {
+    accessToken: string;
+    refreshToken: string;
+    expires: number;
+}
+
 export interface Annotation {
     id: number;
     userId: number;
@@ -82,7 +88,7 @@ export default class GrimmorySync extends Plugin {
         this.settings = Object.assign(
             {},
             DEFAULT_SETTINGS,
-            await this.loadData(),
+            (await this.loadData()) as Partial<GrimmorySyncSettings>,
         );
     }
 
@@ -107,9 +113,10 @@ export default class GrimmorySync extends Plugin {
                         refreshToken: this.settings.refreshToken,
                     }),
                 });
-                this.settings.accessToken = response.json.accessToken;
-                this.settings.refreshToken = response.json.refreshToken;
-                const seconds = response.json.expires;
+                const data = response.json as AuthResponse;
+                this.settings.accessToken = data.accessToken;
+                this.settings.refreshToken = data.refreshToken;
+                const seconds = data.expires;
                 const miliseconds = seconds * 1000;
                 const expires = Date.now() + miliseconds;
                 this.settings.tokenExpiresAt = expires;
@@ -141,9 +148,11 @@ export default class GrimmorySync extends Plugin {
             promiseA,
             promiseB,
         ]);
-        const fromHighlights: BookEntry[] = requestAnnotations.json.map(
+        const annotations = requestAnnotations.json as Annotation[];
+        const bookNotes = requestBookNotes.json as BookNote[];
+        const fromHighlights: BookEntry[] = annotations.map(
             (itemAnnotation: Annotation) => {
-                const itemNote = requestBookNotes.json.find(
+                const itemNote = bookNotes.find(
                     (itemBookNotes: BookNote) =>
                         itemBookNotes.cfi == itemAnnotation.cfi,
                 );
@@ -157,9 +166,9 @@ export default class GrimmorySync extends Plugin {
                 };
             },
         );
-        const fromOrphanNotes: BookEntry[] = requestBookNotes.json
+        const fromOrphanNotes: BookEntry[] = bookNotes
             .filter((itemBookNotes: BookNote) => {
-                return !requestAnnotations.json.some(
+                return !annotations.some(
                     (itemAnnotation: Annotation) =>
                         itemBookNotes.cfi === itemAnnotation.cfi,
                 );
@@ -178,7 +187,7 @@ export default class GrimmorySync extends Plugin {
 
     async getBooks(): Promise<Book[]> {
         const response = await this.authorizedRequest(`/api/v1/notebook/books`);
-        return response.json;
+        return response.json as Book[];
     }
 
     findNoteFile(bookId: number): TFile | undefined {

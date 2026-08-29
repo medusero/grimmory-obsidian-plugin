@@ -7,7 +7,7 @@ import {
     AbstractInputSuggest,
     TFolder,
 } from "obsidian";
-import GrimmorySync from "./main";
+import GrimmorySync, { AuthResponse } from "./main";
 
 export interface GrimmorySyncSettings {
     baseUrl: string;
@@ -107,18 +107,17 @@ export class GrimmorySettingTab extends PluginSettingTab {
                             password: password,
                         }),
                     });
-                    this.plugin.settings.accessToken =
-                        response.json.accessToken;
-                    this.plugin.settings.refreshToken =
-                        response.json.refreshToken;
-                    const seconds = response.json.expires;
+                    const data = response.json as AuthResponse;
+                    this.plugin.settings.accessToken = data.accessToken;
+                    this.plugin.settings.refreshToken = data.refreshToken;
+                    const seconds = data.expires;
                     const miliseconds = seconds * 1000;
                     const expires = Date.now() + miliseconds;
                     this.plugin.settings.tokenExpiresAt = expires;
                     await this.plugin.saveSettings();
                     new Notice("Login successful");
-                } catch (error) {
-                    new Notice("Something had failed");
+                } catch {
+                    new Notice("Login failed");
                 }
             });
         });
@@ -133,10 +132,10 @@ export class GrimmorySettingTab extends PluginSettingTab {
                         await this.plugin.saveSettings();
                     });
                 new FolderSuggest(this.app, text.inputEl).onSelect(
-                    (folder, evt) => {
+                    async (folder) => {
                         text.setValue(folder.path);
                         this.plugin.settings.outputFolder = folder.path;
-                        this.plugin.saveSettings();
+                        await this.plugin.saveSettings();
                     },
                 );
                 return text;
