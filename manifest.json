@@ -2,9 +2,9 @@
     "id": "grimmory-obsidian-plugin",
     "name": "Grimmory Sync",
     "version": "1.0.0",
-    "minAppVersion": "1.4.0",
+    "minAppVersion": "1.5.7",
     "description": "Sync book highlights and notes from a self-hosted Grimmory instance into your vault.",
     "author": "medusero",
     "authorUrl": "",
-    "isDesktopOnly": true
+    "isDesktopOnly": false
 }
