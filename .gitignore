@@ -12,8 +12,3 @@ node_modules
 
 # obsidian
 /data.json
-
-# editors
-.vscode/
-.idea/
-.zed/
