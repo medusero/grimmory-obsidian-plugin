@@ -61,7 +61,7 @@ export default class GrimmorySync extends Plugin {
         this.addSettingTab(new GrimmorySettingTab(this.app, this));
         this.addCommand({
             id: "sync-grimmory",
-            name: "Sync Notes from Grimmory",
+            name: "Sync notes",
             callback: async () => {
                 try {
                     await this.syncAllBooks();
@@ -77,7 +77,6 @@ export default class GrimmorySync extends Plugin {
                 new Notice("Sync failed");
             }
         });
-        new Notice("Plugin cargado");
     }
     async loadSettings() {
         this.settings = Object.assign(
