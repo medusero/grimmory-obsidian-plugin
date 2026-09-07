@@ -8,7 +8,19 @@ Works on desktop and mobile.
 
 ## Installation
 
-Not in the community plugin catalog yet. Installation instructions will be added once it is approved.
+### From Obsidian's community plugins
+
+1. Open **Settings → Community plugins**. If you haven't already, select **Turn on community plugins**.
+2. Select **Browse**, search for **Grimmory Sync**, and select **Install**.
+3. Select **Enable**.
+
+Grimmory Sync has passed Obsidian's automated checks and is awaiting manual review, so its listing currently shows a "not yet reviewed by the Obsidian team" notice. Installing, enabling, and updating all work as usual in the meantime.
+
+### Manual installation
+
+1. Download `main.js` and `manifest.json` from the [latest release](https://github.com/medusero/grimmory-obsidian-plugin/releases/latest).
+2. In your vault, create the folder `.obsidian/plugins/grimmory-sync/` and copy both files into it. On some systems `.obsidian` is hidden — enable hidden files in your file manager to see it.
+3. Reload Obsidian, then enable **Grimmory Sync** under **Settings → Community plugins → Installed plugins**.
 
 ## Configuration
 
