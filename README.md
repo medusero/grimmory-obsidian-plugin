@@ -6,6 +6,8 @@ Each book becomes a Markdown note: highlights as blockquotes with their notes un
 
 Works on desktop and mobile.
 
+> **Disclaimer:** This is an unofficial, community-made plugin and is not affiliated with or endorsed by the Grimmory project.
+
 ## Installation
 
 ### From Obsidian's community plugins
