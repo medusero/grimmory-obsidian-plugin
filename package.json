@@ -2,6 +2,7 @@
     "name": "grimmory-obsidian-plugin",
     "version": "1.0.1",
     "description": "Obsidian's plugin to connect to Grimmory",
+    "private": true,
     "type": "commonjs",
     "main": "main.js",
     "scripts": {
@@ -21,5 +22,5 @@
     },
     "allowScripts": {
         "esbuild@0.28.2": true
-    }
+    },
 }
