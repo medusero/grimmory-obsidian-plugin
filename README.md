@@ -26,7 +26,7 @@ Grimmory Sync has passed Obsidian's automated checks and is awaiting manual revi
 
 ## Configuration
 
-In *Settings → Grimmory Sync*:
+In _Settings → Grimmory Sync_:
 
 | Setting                 | Description                                                                         |
 | ----------------------- | ----------------------------------------------------------------------------------- |
