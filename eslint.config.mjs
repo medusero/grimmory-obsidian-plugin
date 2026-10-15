@@ -27,6 +27,12 @@ export default defineConfig([
         },
     },
     {
+        files: ["**/*.ts"],
+        rules: {
+            "@typescript-eslint/consistent-type-imports": "error",
+        },
+    },
+    {
         files: ["esbuild.config.mjs"],
         rules: {
             "obsidianmd/no-nodejs-modules": "off",
