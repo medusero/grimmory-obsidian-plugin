@@ -1,14 +1,14 @@
 import {
-    Plugin,
     Notice,
-    RequestUrlResponse,
-    TFile,
+    Plugin,
+    type RequestUrlResponse,
+    type TFile,
     requestUrl,
 } from "obsidian";
 import {
-    GrimmorySyncSettings,
-    GrimmorySettingTab,
     DEFAULT_SETTINGS,
+    GrimmorySettingTab,
+    type GrimmorySyncSettings,
 } from "./settings";
 
 export interface AuthResponse {
