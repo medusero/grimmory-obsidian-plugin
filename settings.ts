@@ -1,12 +1,12 @@
 import {
-    App,
+    type App,
+    Notice,
     PluginSettingTab,
     requestUrl,
-    Setting,
-    Notice,
-    SettingDefinitionItem,
+    type Setting,
+    type SettingDefinitionItem,
 } from "obsidian";
-import GrimmorySync, { AuthResponse } from "./main";
+import type { AuthResponse, default as GrimmorySync } from "./main";
 
 export interface GrimmorySyncSettings {
     baseUrl: string;
