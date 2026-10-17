@@ -6,9 +6,10 @@
     "type": "module",
     "main": "main.js",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
+        "test": "node --test 'test/**/*.test.ts'",
         "dev": "node esbuild.config.mjs",
-        "build": "tsc && node esbuild.config.mjs production",
+        "typecheck": "tsc && tsc -p test",
+        "build": "node esbuild.config.mjs production",
         "format": "prettier --write .",
         "format:check": "prettier --check .",
         "lint": "eslint"
