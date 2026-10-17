@@ -35,7 +35,23 @@ export default defineConfig([
     {
         files: ["esbuild.config.mjs"],
         rules: {
+            // Build script: runs in Node at build time, never inside Obsidian.
             "obsidianmd/no-nodejs-modules": "off",
+        },
+    },
+    {
+        files: ["test/**/*.ts"],
+        rules: {
+            // Tests run in Node via `node --test` and are never bundled into the plugin.
+            "obsidianmd/no-nodejs-modules": "off",
+            "@typescript-eslint/no-floating-promises": [
+                "error",
+                {
+                    allowForKnownSafeCalls: [
+                        { from: "package", name: "test", package: "node:test" },
+                    ],
+                },
+            ],
         },
     },
 ]);
