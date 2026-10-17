@@ -11,6 +11,8 @@ import {
     type GrimmorySyncSettings,
 } from "./settings";
 
+import { compareCfi } from "./cfiComparator";
+
 export interface AuthResponse {
     accessToken: string;
     refreshToken: string;
@@ -214,22 +216,6 @@ export default class GrimmorySync extends Plugin {
         return title.replace(/[:/\\?"*<>|]/g, "");
     }
 
-    cfiToNumbers(cfi: string): number[] {
-        const cfiStrings = cfi.match(/\d+/g);
-        const cfiNumbers = cfiStrings?.map(Number) ?? [];
-        return cfiNumbers;
-    }
-
-    compareCfi(a: string, b: string): number {
-        const cfiA = this.cfiToNumbers(a);
-        const cfiB = this.cfiToNumbers(b);
-        const length = Math.min(cfiA.length, cfiB.length);
-        for (let i = 0; i < length; i++) {
-            if (cfiA[i] !== cfiB[i]) return cfiA[i] - cfiB[i];
-        }
-        return cfiA.length - cfiB.length;
-    }
-
     buildNotePath(bookTitle: string): string {
         const fileName =
             this.settings.notePrefix + this.sanitizeTitle(bookTitle) + ".md";
@@ -239,9 +225,7 @@ export default class GrimmorySync extends Plugin {
     }
 
     renderEntries(entries: BookEntry[]): string {
-        const sorted = [...entries].sort((a, b) =>
-            this.compareCfi(a.cfi, b.cfi),
-        );
+        const sorted = [...entries].sort((a, b) => compareCfi(a.cfi, b.cfi));
         const headingPrefix = "#".repeat(this.settings.headingLevel);
         const breakline = "***";
         let output = "";
