@@ -54,6 +54,22 @@ const cases: ComparisonCase[] = [
         input: ["epubcfi(/6/8!/4/56)", "epubcfi(/6/8!/4/56,/1:100,/1:500)"],
         sign: -1,
     },
+    {
+        description: "assertion with digits in one CFI",
+        input: [
+            "epubcfi(/6/8[chap03]!/4/56,/1:100,/1:500)",
+            "epubcfi(/6/8!/4/4,/1:0,/1:76)",
+        ],
+        sign: 1,
+    },
+    {
+        description: "identical CFI but one has assertion",
+        input: [
+            "epubcfi(/6/8!/4[chapter04]/56,/1:100,/1:500)",
+            "epubcfi(/6/8!/4/56,/1:100,/1:500)",
+        ],
+        sign: 0,
+    },
 ];
 
 describe("compareCfi", () => {
@@ -73,14 +89,4 @@ describe("compareCfi", () => {
             );
         });
     }
-    it(
-        "ignores [id] assertions when ordering",
-        { todo: "cfiToNumbers reads digits inside [id] assertions" },
-        () => {
-            const a = "epubcfi(/6/8[chap03]!/4/56,/1:100,/1:500)";
-            const b = "epubcfi(/6/8!/4/4,/1:0,/1:76)";
-            const sign = Math.sign(compareCfi(a, b));
-            assert.strictEqual(sign, 1);
-        },
-    );
 });
