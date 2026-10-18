@@ -48,7 +48,11 @@ export default defineConfig([
                 "error",
                 {
                     allowForKnownSafeCalls: [
-                        { from: "package", name: "test", package: "node:test" },
+                        {
+                            from: "package",
+                            name: ["suite", "test"],
+                            package: "node:test",
+                        },
                     ],
                 },
             ],
