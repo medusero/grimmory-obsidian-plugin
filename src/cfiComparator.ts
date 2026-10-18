@@ -1,5 +1,7 @@
 function cfiToNumbers(cfi: string): number[] {
-    const cfiStrings = cfi.match(/\d+/g);
+    // Drop [id] assertions: they may contain digits that are not path steps.
+    const cfiWithoutAssertions = cfi.replace(/\[[^\]]*\]/g, "");
+    const cfiStrings = cfiWithoutAssertions.match(/\d+/g);
     const cfiNumbers = cfiStrings?.map(Number) ?? [];
     return cfiNumbers;
 }
