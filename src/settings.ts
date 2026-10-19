@@ -6,7 +6,8 @@ import {
     type Setting,
     type SettingDefinitionItem,
 } from "obsidian";
-import type { AuthResponse, default as GrimmorySync } from "./main";
+import type GrimmorySync from "./main";
+import type { AuthResponse } from "./types";
 
 export interface GrimmorySyncSettings {
     baseUrl: string;
