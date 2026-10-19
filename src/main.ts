@@ -19,6 +19,7 @@ import type {
 } from "./types";
 
 import { compareCfi } from "./cfiComparator";
+import { buildNotePath } from "./notePathBuilder";
 
 const separatorStart = "<!-- gs:start -->";
 const separatorEnd = "<!-- gs:end -->";
@@ -173,18 +174,6 @@ export default class GrimmorySync extends Plugin {
         return checkProperty;
     }
 
-    sanitizeTitle(title: string): string {
-        return title.replace(/[:/\\?"*<>|]/g, "");
-    }
-
-    buildNotePath(bookTitle: string): string {
-        const fileName =
-            this.settings.notePrefix + this.sanitizeTitle(bookTitle) + ".md";
-        return this.settings.outputFolder
-            ? `${this.settings.outputFolder}/${fileName}`
-            : fileName;
-    }
-
     renderEntries(entries: BookEntry[]): string {
         const sorted = [...entries].sort((a, b) => compareCfi(a.cfi, b.cfi));
         const headingPrefix = "#".repeat(this.settings.headingLevel);
@@ -234,7 +223,7 @@ export default class GrimmorySync extends Plugin {
             await this.app.vault.createFolder(this.settings.outputFolder);
         }
         await this.app.vault.create(
-            this.buildNotePath(book.bookTitle),
+            buildNotePath(book.bookTitle, this.settings),
             this.buildInitialContent(book.bookId, entries),
         );
     }
