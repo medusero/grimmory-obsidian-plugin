@@ -1,6 +1,9 @@
 import type { GrimmorySyncSettings } from "./settings";
 
-type PathSettings = Pick<GrimmorySyncSettings, "notePrefix" | "outputFolder">;
+export type PathSettings = Pick<
+    GrimmorySyncSettings,
+    "notePrefix" | "outputFolder"
+>;
 
 function sanitizeTitle(title: string): string {
     return title.replace(/[:/\\?"*<>|]/g, "");
