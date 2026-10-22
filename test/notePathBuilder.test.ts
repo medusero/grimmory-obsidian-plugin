@@ -47,13 +47,49 @@ const cases: FilenameCase[] = [
         expected: "Books/Romeo and Juliet.md",
     },
     {
-        description: "filename with forbidden characters",
+        description: "filename without forbidden characters",
         title: "Shakespeare: Romeo/Juliet",
         settings: {
             notePrefix: "",
             outputFolder: "",
         },
         expected: "Shakespeare RomeoJuliet.md",
+    },
+    {
+        description: "filename without initial dot",
+        title: ".Romeo and Juliet",
+        settings: {
+            notePrefix: "",
+            outputFolder: "",
+        },
+        expected: "Romeo and Juliet.md",
+    },
+    {
+        description: "filename with non-initial dots",
+        title: "Romeo.and.Juliet",
+        settings: {
+            notePrefix: "",
+            outputFolder: "",
+        },
+        expected: "Romeo.and.Juliet.md",
+    },
+    {
+        description: "filename without Obsidian's problematic characters",
+        title: "#Romeo [and] ^Juliet",
+        settings: {
+            notePrefix: "",
+            outputFolder: "",
+        },
+        expected: "Romeo and Juliet.md",
+    },
+    {
+        description: "filename without a leading dot left after cleaning",
+        title: "#.Romeo.and.Juliet",
+        settings: {
+            notePrefix: "",
+            outputFolder: "",
+        },
+        expected: "Romeo.and.Juliet.md",
     },
 ];
 
@@ -86,35 +122,9 @@ describe("buildNotePath", () => {
         },
     );
     it(
-        "deletes Obsidian's problematic characters",
-        { todo: "right now the result is problematic in Obsidian" },
-        () => {
-            assert.strictEqual(
-                buildNotePath("#Romeo [and] ^Juliet", {
-                    notePrefix: "",
-                    outputFolder: "",
-                }),
-                "Romeo and Juliet.md",
-            );
-        },
-    );
-    it(
-        "deletes the initial dot",
-        { todo: "right now the result is a hidden file" },
-        () => {
-            assert.strictEqual(
-                buildNotePath(".Romeo and Juliet", {
-                    notePrefix: "",
-                    outputFolder: "",
-                }),
-                "Romeo and Juliet.md",
-            );
-        },
-    );
-    it(
         "throws when title only contains dots",
         {
-            todo: "right now the result is a hidden file with a nonsense filename",
+            todo: "right now the result is '.md'",
         },
         () => {
             assert.throws(
