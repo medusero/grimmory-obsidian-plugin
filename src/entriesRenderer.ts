@@ -1,0 +1,37 @@
+import { compareCfi } from "./cfiComparator.ts";
+import type { GrimmorySyncSettings } from "./settings.ts";
+import type { BookEntry } from "./types.ts";
+
+export type RenderSettings = Pick<
+    GrimmorySyncSettings,
+    "noteLabel" | "headingLevel"
+>;
+
+export function renderEntries(
+    entries: BookEntry[],
+    settings: RenderSettings,
+): string {
+    const sorted = [...entries].sort((a, b) => compareCfi(a.cfi, b.cfi));
+    const headingPrefix = "#".repeat(settings.headingLevel);
+    const breakline = "***";
+    let output = "";
+    let first = true;
+    let lastChapter: string | undefined = undefined;
+    for (const entry of sorted) {
+        if (!first) {
+            output += `${breakline}\n\n`;
+        }
+        first = false;
+        if (entry.chapterTitle !== lastChapter) {
+            lastChapter = entry.chapterTitle;
+            output += `${headingPrefix} ${lastChapter}\n\n`;
+        }
+        if (entry.highlightText) {
+            output += `> ${entry.highlightText}\n\n`;
+        }
+        if (entry.noteText) {
+            output += `${settings.noteLabel}${entry.noteText}\n\n`;
+        }
+    }
+    return output;
+}

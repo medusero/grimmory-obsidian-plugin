@@ -18,7 +18,7 @@ import type {
     BookNote,
 } from "./types";
 
-import { compareCfi } from "./cfiComparator";
+import { renderEntries } from "./entriesRenderer";
 import { buildNotePath } from "./notePathBuilder";
 
 const separatorStart = "<!-- gs:start -->";
@@ -174,32 +174,6 @@ export default class GrimmorySync extends Plugin {
         return checkProperty;
     }
 
-    renderEntries(entries: BookEntry[]): string {
-        const sorted = [...entries].sort((a, b) => compareCfi(a.cfi, b.cfi));
-        const headingPrefix = "#".repeat(this.settings.headingLevel);
-        const breakline = "***";
-        let output = "";
-        let first = true;
-        let lastChapter: string | undefined = undefined;
-        for (const entry of sorted) {
-            if (!first) {
-                output += `${breakline}\n\n`;
-            }
-            first = false;
-            if (entry.chapterTitle !== lastChapter) {
-                lastChapter = entry.chapterTitle;
-                output += `${headingPrefix} ${lastChapter}\n\n`;
-            }
-            if (entry.highlightText) {
-                output += `> ${entry.highlightText}\n\n`;
-            }
-            if (entry.noteText) {
-                output += `${this.settings.noteLabel}${entry.noteText}\n\n`;
-            }
-        }
-        return output;
-    }
-
     buildInitialContent(bookId: number, entries: BookEntry[]): string {
         const separator = "---";
         const propertySync = "gs-state: active";
@@ -210,7 +184,7 @@ export default class GrimmorySync extends Plugin {
         const bookNote =
             grimmoryFrontmatter +
             grimmoryZoneStart +
-            this.renderEntries(entries) +
+            renderEntries(entries, this.settings) +
             grimmoryZoneEnd;
         return bookNote;
     }
@@ -234,7 +208,7 @@ export default class GrimmorySync extends Plugin {
         return (
             before +
             `${separatorStart}\n` +
-            this.renderEntries(entries) +
+            renderEntries(entries, this.settings) +
             `\n${separatorEnd}` +
             after
         );
