@@ -1,4 +1,4 @@
-import type { GrimmorySyncSettings } from "./settings";
+import type { GrimmorySyncSettings } from "./settings.ts";
 
 export type PathSettings = Pick<
     GrimmorySyncSettings,

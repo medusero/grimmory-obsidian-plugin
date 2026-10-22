@@ -6,8 +6,8 @@ import {
     type Setting,
     type SettingDefinitionItem,
 } from "obsidian";
-import type GrimmorySync from "./main";
-import type { AuthResponse } from "./types";
+import type GrimmorySync from "./main.ts";
+import type { AuthResponse } from "./types.ts";
 
 export interface GrimmorySyncSettings {
     baseUrl: string;

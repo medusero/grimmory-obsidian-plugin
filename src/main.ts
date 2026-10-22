@@ -9,17 +9,17 @@ import {
     DEFAULT_SETTINGS,
     GrimmorySettingTab,
     type GrimmorySyncSettings,
-} from "./settings";
+} from "./settings.ts";
 import type {
     Annotation,
     AuthResponse,
     Book,
     BookEntry,
     BookNote,
-} from "./types";
+} from "./types.ts";
 
-import { renderEntries } from "./entriesRenderer";
-import { buildNotePath } from "./notePathBuilder";
+import { renderEntries } from "./entriesRenderer.ts";
+import { buildNotePath } from "./notePathBuilder.ts";
 
 const separatorStart = "<!-- gs:start -->";
 const separatorEnd = "<!-- gs:end -->";
