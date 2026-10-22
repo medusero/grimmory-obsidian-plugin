@@ -6,7 +6,8 @@ export type PathSettings = Pick<
 >;
 
 function sanitizeTitle(title: string): string {
-    return title.replace(/[:/\\?"*<>|]/g, "");
+    const cleanTitle = title.replace(/[:/\\?"*<>|[\]#^]/g, "");
+    return cleanTitle.replace(/^[.]+/, "");
 }
 
 export function buildNotePath(
