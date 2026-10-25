@@ -5,6 +5,7 @@ import {
     type TFile,
     requestUrl,
 } from "obsidian";
+import { replaceManagedZone } from "./managedZoneReplacer.ts";
 import {
     DEFAULT_SETTINGS,
     GrimmorySettingTab,
@@ -19,10 +20,8 @@ import type {
 } from "./types.ts";
 
 import { renderEntries } from "./entriesRenderer.ts";
+import { separatorEnd, separatorStart } from "./markers.ts";
 import { buildNotePath } from "./notePathBuilder.ts";
-
-const separatorStart = "<!-- gs:start -->";
-const separatorEnd = "<!-- gs:end -->";
 
 export default class GrimmorySync extends Plugin {
     settings!: GrimmorySyncSettings;
@@ -202,24 +201,13 @@ export default class GrimmorySync extends Plugin {
         );
     }
 
-    replaceManagedZone(content: string, entries: BookEntry[]): string {
-        const [before, rest] = content.split(separatorStart);
-        const [, after] = rest.split(separatorEnd);
-        return (
-            before +
-            `${separatorStart}\n` +
-            renderEntries(entries, this.settings) +
-            `\n${separatorEnd}` +
-            after
-        );
-    }
-
     async updateNote(file: TFile, entries: BookEntry[]): Promise<void> {
         if (!this.isNoteActive(file)) {
             return;
         }
-        await this.app.vault.process(file, (data) =>
-            this.replaceManagedZone(data, entries),
+        const renderedEntries = renderEntries(entries, this.settings);
+        await this.app.vault.process(file, (fileContent) =>
+            replaceManagedZone(fileContent, renderedEntries),
         );
     }
 
