@@ -66,130 +66,88 @@ describe("replaceManagedZone", () => {
             assert.strictEqual(first, second);
         });
     }
-    it(
-        "throws when there are no markers",
-        {
-            todo: "right now throws a TypeError 'Cannot read properties of undefined'",
-        },
-        () => {
-            assert.throws(
-                () =>
-                    replaceManagedZone(
-                        `${frontmatter}\n\n${prevText}\n\n${oldZone}`,
-                        newZone,
-                    ),
-                {
-                    name: "MarkerError",
-                },
-            );
-        },
-    );
-    it(
-        "throws when there is no initial marker",
-        {
-            todo: "right now throws a TypeError 'Cannot read properties of undefined'",
-        },
-        () => {
-            assert.throws(
-                () =>
-                    replaceManagedZone(
-                        `${frontmatter}\n\n${prevText}\n\n${oldZone}\n\n${separatorEnd}`,
-                        newZone,
-                    ),
-                {
-                    name: "MarkerError",
-                },
-            );
-        },
-    );
-    it(
-        "throws when there is no final marker",
-        {
-            todo: "right now appends 'undefined' and drops the user text after the start marker",
-        },
-        () => {
-            assert.throws(
-                () =>
-                    replaceManagedZone(
-                        `${frontmatter}\n\n${prevText}\n\n${separatorStart}\n\n${oldZone}`,
-                        newZone,
-                    ),
-                {
-                    name: "MarkerError",
-                },
-            );
-        },
-    );
-    it(
-        "throws when there is a duplicated start marker",
-        {
-            todo: "right now drops user text",
-        },
-        () => {
-            assert.throws(
-                () =>
-                    replaceManagedZone(
-                        `${frontmatter}\n\n${prevText}\n\n${separatorStart}\n\n${oldZone}\n\n${separatorStart}\n\n${oldZone}\n\n${separatorEnd}`,
-                        newZone,
-                    ),
-                {
-                    name: "MarkerError",
-                },
-            );
-        },
-    );
-    it(
-        "throws when there is a duplicated end marker",
-        {
-            todo: "right now drops user text",
-        },
-        () => {
-            assert.throws(
-                () =>
-                    replaceManagedZone(
-                        `${frontmatter}\n\n${prevText}\n\n${separatorStart}\n\n${oldZone}\n\n${separatorEnd}\n\n${oldZone}\n\n${separatorEnd}`,
-                        newZone,
-                    ),
-                {
-                    name: "MarkerError",
-                },
-            );
-        },
-    );
-    it(
-        "throws when there is a duplicated managed zone",
-        {
-            todo: "right now drops user text",
-        },
-        () => {
-            assert.throws(
-                () =>
-                    replaceManagedZone(
-                        `${frontmatter}\n\n${separatorStart}\n\n${oldZone}\n\n${separatorEnd}\n\n${postText}\n\n${separatorStart}\n\n${oldZone}\n\n${separatorEnd}`,
-                        newZone,
-                    ),
-                {
-                    name: "MarkerError",
-                },
-            );
-        },
-    );
-    it(
-        "throws when start and end markers in reversed order",
-        {
-            todo: "right now duplicates end marker and appends 'undefined' at the end",
-        },
-        () => {
-            assert.throws(
-                () =>
-                    replaceManagedZone(
-                        `${frontmatter}\n\n${separatorEnd}\n\n${prevText}\n\n${oldZone}\n\n${separatorStart}`,
-                        newZone,
-                    ),
-                {
-                    name: "MarkerError",
-                },
-            );
-        },
-    );
+    it("throws when there are no markers", () => {
+        assert.throws(
+            () =>
+                replaceManagedZone(
+                    `${frontmatter}\n\n${prevText}\n\n${oldZone}`,
+                    newZone,
+                ),
+            {
+                name: "MarkerError",
+            },
+        );
+    });
+    it("throws when there is no initial marker", () => {
+        assert.throws(
+            () =>
+                replaceManagedZone(
+                    `${frontmatter}\n\n${prevText}\n\n${oldZone}\n\n${separatorEnd}`,
+                    newZone,
+                ),
+            {
+                name: "MarkerError",
+            },
+        );
+    });
+    it("throws when there is no final marker", () => {
+        assert.throws(
+            () =>
+                replaceManagedZone(
+                    `${frontmatter}\n\n${prevText}\n\n${separatorStart}\n\n${oldZone}`,
+                    newZone,
+                ),
+            {
+                name: "MarkerError",
+            },
+        );
+    });
+    it("throws when there is a duplicated start marker", () => {
+        assert.throws(
+            () =>
+                replaceManagedZone(
+                    `${frontmatter}\n\n${prevText}\n\n${separatorStart}\n\n${oldZone}\n\n${separatorStart}\n\n${oldZone}\n\n${separatorEnd}`,
+                    newZone,
+                ),
+            {
+                name: "MarkerError",
+            },
+        );
+    });
+    it("throws when there is a duplicated end marker", () => {
+        assert.throws(
+            () =>
+                replaceManagedZone(
+                    `${frontmatter}\n\n${prevText}\n\n${separatorStart}\n\n${oldZone}\n\n${separatorEnd}\n\n${oldZone}\n\n${separatorEnd}`,
+                    newZone,
+                ),
+            {
+                name: "MarkerError",
+            },
+        );
+    });
+    it("throws when there is a duplicated managed zone", () => {
+        assert.throws(
+            () =>
+                replaceManagedZone(
+                    `${frontmatter}\n\n${separatorStart}\n\n${oldZone}\n\n${separatorEnd}\n\n${postText}\n\n${separatorStart}\n\n${oldZone}\n\n${separatorEnd}`,
+                    newZone,
+                ),
+            {
+                name: "MarkerError",
+            },
+        );
+    });
+    it("throws when start and end markers in reversed order", () => {
+        assert.throws(
+            () =>
+                replaceManagedZone(
+                    `${frontmatter}\n\n${separatorEnd}\n\n${prevText}\n\n${oldZone}\n\n${separatorStart}`,
+                    newZone,
+                ),
+            {
+                name: "MarkerError",
+            },
+        );
+    });
 });
