@@ -20,6 +20,7 @@ import type {
 } from "./types.ts";
 
 import { renderEntries } from "./entriesRenderer.ts";
+import { MarkerError } from "./markerError.ts";
 import { separatorEnd, separatorStart } from "./markers.ts";
 import { buildNotePath } from "./notePathBuilder.ts";
 
@@ -224,20 +225,29 @@ export default class GrimmorySync extends Plugin {
     async syncAllBooks(): Promise<void> {
         const books = await this.getBooks();
         let succeeded = 0;
-        const errors: string[] = [];
+        const markerErrors: string[] = [];
+        const otherErrors: string[] = [];
         for (const book of books) {
             try {
                 await this.syncBook(book);
                 succeeded += 1;
             } catch (error) {
-                errors.push(`${book.bookTitle}`);
                 console.error(error);
+                if (error instanceof MarkerError) {
+                    markerErrors.push(book.bookTitle);
+                } else {
+                    otherErrors.push(book.bookTitle);
+                }
             }
         }
         let message = `${succeeded} notes synced.`;
-        if (errors.length > 0) {
-            message += ` ${errors.length} failed: ${errors.join(", ")}`;
+        if (markerErrors.length > 0) {
+            message += ` Check the gs markers in ${markerErrors.join(", ")}`;
         }
-        new Notice(message);
+        if (otherErrors.length > 0) {
+            message += ` ${otherErrors.length} failed: ${otherErrors.join(", ")}`;
+        }
+        const hasErrors = otherErrors.length > 0 || markerErrors.length > 0;
+        new Notice(message, hasErrors ? 0 : undefined);
     }
 }
