@@ -183,6 +183,47 @@ const cases: RenderCase[] = [
         expected:
             "## Capítulo 4\n\n> El viajero cruzó el puente al amanecer.\n\n***\n\n> Nadie recordó quién había construido la torre.\n\n***\n\n## Capítulo 5\n\n> El viento se llevó sus palabras.\n\n",
     },
+    {
+        description: "replacement of an unclosed marker within a highlight",
+        entries: [
+            {
+                cfi: "epubcfi(/6/8!/4/56,/1:100,/1:300)",
+                highlightText: "Su pantalla mostraba <!-- claramente.",
+                chapterTitle: "Chapter 4",
+            },
+        ],
+        settings: defaultSettings,
+        expected:
+            "## Chapter 4\n\n> Su pantalla mostraba &lt;!-- claramente.\n\n",
+    },
+    {
+        description: "replacement of an unclosed marker within a note",
+        entries: [
+            {
+                cfi: "epubcfi(/6/8!/4/56,/1:100,/1:300)",
+                highlightText: "El viajero cruzó el puente al amanecer.",
+                noteText: "Esto es un <!-- gs:start --> marcador",
+                chapterTitle: "Chapter 4",
+            },
+        ],
+        settings: defaultSettings,
+        expected:
+            "## Chapter 4\n\n> El viajero cruzó el puente al amanecer.\n\n**Note:** Esto es un &lt;!-- gs:start --> marcador\n\n",
+    },
+    {
+        description:
+            "replacement of various unclosed marker within a highlight",
+        entries: [
+            {
+                cfi: "epubcfi(/6/8!/4/56,/1:100,/1:300)",
+                highlightText: "Su pantalla mostraba <!-- <!-- claramente.",
+                chapterTitle: "Chapter 4",
+            },
+        ],
+        settings: defaultSettings,
+        expected:
+            "## Chapter 4\n\n> Su pantalla mostraba &lt;!-- &lt;!-- claramente.\n\n",
+    },
 ];
 
 describe("renderEntries", () => {
@@ -212,25 +253,21 @@ describe("renderEntries", () => {
             );
         },
     );
-    it(
-        "separator in text doesn't break managed zone",
-        { todo: "right now the separator is included in the text" },
-        () => {
-            assert.doesNotMatch(
-                renderEntries(
-                    [
-                        {
-                            cfi: "epubcfi(/6/2!/4/2,/1:0,/1:90)",
-                            highlightText: "Fin <!-- gs:end --> del texto.",
-                            chapterTitle: "Capítulo 4",
-                        },
-                    ],
-                    defaultSettings,
-                ),
-                /<!--\s*gs:(start|end)\s*-->/,
-            );
-        },
-    );
+    it("separator in text doesn't break managed zone", () => {
+        assert.doesNotMatch(
+            renderEntries(
+                [
+                    {
+                        cfi: "epubcfi(/6/2!/4/2,/1:0,/1:90)",
+                        highlightText: "Fin <!-- gs:end --> del texto.",
+                        chapterTitle: "Capítulo 4",
+                    },
+                ],
+                defaultSettings,
+            ),
+            /<!--\s*gs:(start|end)\s*-->/,
+        );
+    });
     it(
         "markdown character in text doesn't alter the format",
         { todo: "right now Obsidian renders the '#'" },

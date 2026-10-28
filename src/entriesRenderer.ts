@@ -7,6 +7,11 @@ export type RenderSettings = Pick<
     "noteLabel" | "headingLevel"
 >;
 
+function escapeHtmlComments(text: string): string {
+    const result = text.replace(/<!--/g, "&lt;!--");
+    return result;
+}
+
 export function renderEntries(
     entries: BookEntry[],
     settings: RenderSettings,
@@ -27,10 +32,12 @@ export function renderEntries(
             output += `${headingPrefix} ${lastChapter}\n\n`;
         }
         if (entry.highlightText) {
-            output += `> ${entry.highlightText}\n\n`;
+            const quote = escapeHtmlComments(entry.highlightText);
+            output += `> ${quote}\n\n`;
         }
         if (entry.noteText) {
-            output += `${settings.noteLabel}${entry.noteText}\n\n`;
+            const note = escapeHtmlComments(entry.noteText);
+            output += `${settings.noteLabel}${note}\n\n`;
         }
     }
     return output;
