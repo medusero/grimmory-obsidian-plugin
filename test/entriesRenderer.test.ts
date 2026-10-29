@@ -211,6 +211,19 @@ const cases: RenderCase[] = [
             "## Chapter 4\n\n> El viajero cruzó el puente al amanecer.\n\n**Note:** Esto es un &lt;!-- gs:start --> marcador\n\n",
     },
     {
+        description: "replacement of an unclosed marker within a chapter title",
+        entries: [
+            {
+                cfi: "epubcfi(/6/8!/4/56,/1:100,/1:300)",
+                highlightText: "El viajero cruzó el puente al amanecer.",
+                chapterTitle: "Chapter <!-- 4",
+            },
+        ],
+        settings: defaultSettings,
+        expected:
+            "## Chapter &lt;!-- 4\n\n> El viajero cruzó el puente al amanecer.\n\n",
+    },
+    {
         description:
             "replacement of various unclosed marker within a highlight",
         entries: [
@@ -223,6 +236,94 @@ const cases: RenderCase[] = [
         settings: defaultSettings,
         expected:
             "## Chapter 4\n\n> Su pantalla mostraba &lt;!-- &lt;!-- claramente.\n\n",
+    },
+    {
+        description: "no chapter title when it's only spaces",
+        entries: [
+            {
+                cfi: "epubcfi(/6/8!/4/56,/1:100,/1:300)",
+                highlightText: "El viajero cruzó el puente al amanecer.",
+                chapterTitle: "   ",
+            },
+        ],
+        settings: defaultSettings,
+        expected: "> El viajero cruzó el puente al amanecer.\n\n",
+    },
+    {
+        description:
+            "a single heading when an untitled entry sits between two of the same chapter",
+        entries: [
+            {
+                cfi: "epubcfi(/6/8!/4/56,/1:100,/1:300)",
+                highlightText: "Nadie recordó quién había construido la torre.",
+                chapterTitle: "Capítulo 4",
+            },
+            {
+                cfi: "epubcfi(/6/8!/4/58,/1:0,/1:120)",
+                highlightText: "El viento se llevó sus palabras.",
+            },
+            {
+                cfi: "epubcfi(/6/8!/4/62,/1:90,/1:453)",
+                highlightText: "El viajero cruzó el puente al amanecer.",
+                chapterTitle: "Capítulo 4",
+            },
+        ],
+        settings: defaultSettings,
+        expected:
+            "## Capítulo 4\n\n> Nadie recordó quién había construido la torre.\n\n***\n\n> El viento se llevó sus palabras.\n\n***\n\n> El viajero cruzó el puente al amanecer.\n\n",
+    },
+    {
+        description: "no heading for a first entry with an empty chapter",
+        entries: [
+            {
+                cfi: "epubcfi(/6/8!/4/56,/1:100,/1:300)",
+                highlightText: "El viajero cruzó el puente al amanecer.",
+                chapterTitle: "",
+            },
+            {
+                cfi: "epubcfi(/6/8!/4/58,/1:0,/1:120)",
+                highlightText: "Nadie recordó quién había construido la torre.",
+                chapterTitle: "Capítulo 4",
+            },
+        ],
+        settings: defaultSettings,
+        expected:
+            "> El viajero cruzó el puente al amanecer.\n\n***\n\n## Capítulo 4\n\n> Nadie recordó quién había construido la torre.\n\n",
+    },
+    {
+        description: "no heading for a second entry with an empty chapter",
+        entries: [
+            {
+                cfi: "epubcfi(/6/8!/4/56,/1:100,/1:300)",
+                highlightText: "El viajero cruzó el puente al amanecer.",
+                chapterTitle: "Capítulo 4",
+            },
+            {
+                cfi: "epubcfi(/6/8!/4/58,/1:0,/1:120)",
+                highlightText: "Nadie recordó quién había construido la torre.",
+                chapterTitle: "",
+            },
+        ],
+        settings: defaultSettings,
+        expected:
+            "## Capítulo 4\n\n> El viajero cruzó el puente al amanecer.\n\n***\n\n> Nadie recordó quién había construido la torre.\n\n",
+    },
+    {
+        description: "no heading for an entry without chapter",
+        entries: [
+            {
+                cfi: "epubcfi(/6/8!/4/56,/1:100,/1:300)",
+                highlightText: "El viajero cruzó el puente al amanecer.",
+                chapterTitle: "Capítulo 4",
+            },
+            {
+                cfi: "epubcfi(/6/8!/4/58,/1:0,/1:120)",
+                highlightText: "Nadie recordó quién había construido la torre.",
+            },
+        ],
+        settings: defaultSettings,
+        expected:
+            "## Capítulo 4\n\n> El viajero cruzó el puente al amanecer.\n\n***\n\n> Nadie recordó quién había construido la torre.\n\n",
     },
 ];
 
@@ -284,83 +385,6 @@ describe("renderEntries", () => {
                     defaultSettings,
                 ),
                 "## Capítulo 4\n\n> \\# No es un título.\n\n",
-            );
-        },
-    );
-    it(
-        "omits the heading when there is an empty chapterTitle in first entry",
-        { todo: "right now the result is a line with only '##'" },
-        () => {
-            assert.strictEqual(
-                renderEntries(
-                    [
-                        {
-                            cfi: "epubcfi(/6/8!/4/56,/1:100,/1:300)",
-                            highlightText:
-                                "El viajero cruzó el puente al amanecer.",
-                            chapterTitle: "",
-                        },
-                        {
-                            cfi: "epubcfi(/6/8!/4/58,/1:0,/1:120)",
-                            highlightText:
-                                "Nadie recordó quién había construido la torre.",
-                            chapterTitle: "Capítulo 4",
-                        },
-                    ],
-                    defaultSettings,
-                ),
-                "> El viajero cruzó el puente al amanecer.\n\n***\n\n## Capítulo 4\n\n> Nadie recordó quién había construido la torre.\n\n",
-            );
-        },
-    );
-    it(
-        "omits the heading when there is an empty chapterTitle in second entry",
-        { todo: "right now the result is a line with only '##'" },
-        () => {
-            assert.strictEqual(
-                renderEntries(
-                    [
-                        {
-                            cfi: "epubcfi(/6/8!/4/56,/1:100,/1:300)",
-                            highlightText:
-                                "El viajero cruzó el puente al amanecer.",
-                            chapterTitle: "Capítulo 4",
-                        },
-                        {
-                            cfi: "epubcfi(/6/8!/4/58,/1:0,/1:120)",
-                            highlightText:
-                                "Nadie recordó quién había construido la torre.",
-                            chapterTitle: "",
-                        },
-                    ],
-                    defaultSettings,
-                ),
-                "## Capítulo 4\n\n> El viajero cruzó el puente al amanecer.\n\n***\n\n> Nadie recordó quién había construido la torre.\n\n",
-            );
-        },
-    );
-    it(
-        "omits the heading when there is no chapterTitle in second entry",
-        { todo: "right now the result is a line with only '## undefined'" },
-        () => {
-            assert.strictEqual(
-                renderEntries(
-                    [
-                        {
-                            cfi: "epubcfi(/6/8!/4/56,/1:100,/1:300)",
-                            highlightText:
-                                "El viajero cruzó el puente al amanecer.",
-                            chapterTitle: "Capítulo 4",
-                        },
-                        {
-                            cfi: "epubcfi(/6/8!/4/58,/1:0,/1:120)",
-                            highlightText:
-                                "Nadie recordó quién había construido la torre.",
-                        },
-                    ],
-                    defaultSettings,
-                ),
-                "## Capítulo 4\n\n> El viajero cruzó el puente al amanecer.\n\n***\n\n> Nadie recordó quién había construido la torre.\n\n",
             );
         },
     );
