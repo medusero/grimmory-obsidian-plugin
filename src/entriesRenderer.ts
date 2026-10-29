@@ -27,9 +27,14 @@ export function renderEntries(
             output += `${breakline}\n\n`;
         }
         first = false;
-        if (entry.chapterTitle !== lastChapter) {
+        if (
+            entry.chapterTitle !== lastChapter &&
+            typeof entry.chapterTitle === "string" &&
+            entry.chapterTitle.trim().length > 0
+        ) {
+            const chapter = escapeHtmlComments(entry.chapterTitle);
             lastChapter = entry.chapterTitle;
-            output += `${headingPrefix} ${lastChapter}\n\n`;
+            output += `${headingPrefix} ${chapter}\n\n`;
         }
         if (entry.highlightText) {
             const quote = escapeHtmlComments(entry.highlightText);
