@@ -12,6 +12,12 @@ function escapeHtmlComments(text: string): string {
     return result;
 }
 
+function formatQuote(text: string): string {
+    const lines = text.split(/\r?\n/);
+    const result = lines.map((line) => line.replace(/^( {0,3})#/, "$1\\#"));
+    return "> " + result.join("\n> ");
+}
+
 export function renderEntries(
     entries: BookEntry[],
     settings: RenderSettings,
@@ -38,7 +44,8 @@ export function renderEntries(
         }
         if (entry.highlightText) {
             const quote = escapeHtmlComments(entry.highlightText);
-            output += `> ${quote}\n\n`;
+            const formattedQuote = formatQuote(quote);
+            output += `${formattedQuote}\n\n`;
         }
         if (entry.noteText) {
             const note = escapeHtmlComments(entry.noteText);
