@@ -106,7 +106,8 @@ const cases: RenderCase[] = [
             },
         ],
         settings: defaultSettings,
-        expected: "## Capítulo 4\n\n> Para quien espera.\nLa muerte llega.\n\n",
+        expected:
+            "## Capítulo 4\n\n> Para quien espera.\n> La muerte llega.\n\n",
     },
     {
         description: "headings at the configured level",
@@ -325,6 +326,57 @@ const cases: RenderCase[] = [
         expected:
             "## Capítulo 4\n\n> El viajero cruzó el puente al amanecer.\n\n***\n\n> Nadie recordó quién había construido la torre.\n\n",
     },
+    {
+        description: "quotation intact despite line breaks in text",
+        entries: [
+            {
+                cfi: "epubcfi(/6/2!/4/2,/1:0,/1:90)",
+                highlightText: "Para quien espera.\n\nLa muerte llega.",
+                chapterTitle: "Capítulo 4",
+            },
+        ],
+        settings: defaultSettings,
+        expected:
+            "## Capítulo 4\n\n> Para quien espera.\n> \n> La muerte llega.\n\n",
+    },
+    {
+        description: "an escaped markdown header character",
+        entries: [
+            {
+                cfi: "epubcfi(/6/2!/4/2,/1:0,/1:90)",
+                highlightText: "# No es un título.",
+                chapterTitle: "Capítulo 4",
+            },
+        ],
+        settings: defaultSettings,
+        expected: "## Capítulo 4\n\n> \\# No es un título.\n\n",
+    },
+    {
+        description:
+            "an escaped markdown header character and preserves the spaces that follow it",
+        entries: [
+            {
+                cfi: "epubcfi(/6/2!/4/2,/1:0,/1:90)",
+                highlightText: "#   No es un título.",
+                chapterTitle: "Capítulo 4",
+            },
+        ],
+        settings: defaultSettings,
+        expected: "## Capítulo 4\n\n> \\#   No es un título.\n\n",
+    },
+    {
+        description:
+            "an escaped markdown header character and preserves the spaces that precede it",
+        entries: [
+            {
+                cfi: "epubcfi(/6/2!/4/2,/1:0,/1:90)",
+                highlightText: "  # No es un título.",
+                chapterTitle: "Capítulo 4",
+            },
+        ],
+        settings: defaultSettings,
+        expected: "## Capítulo 4\n\n>   \\# No es un título.\n\n",
+    },
 ];
 
 describe("renderEntries", () => {
@@ -334,26 +386,6 @@ describe("renderEntries", () => {
             assert.strictEqual(result, expected);
         });
     }
-    it(
-        "two lines in text doesn't break the quote",
-        { todo: "right now the quote breaks" },
-        () => {
-            assert.strictEqual(
-                renderEntries(
-                    [
-                        {
-                            cfi: "epubcfi(/6/2!/4/2,/1:0,/1:90)",
-                            highlightText:
-                                "Para quien espera.\n\nLa muerte llega.",
-                            chapterTitle: "Capítulo 4",
-                        },
-                    ],
-                    defaultSettings,
-                ),
-                "## Capítulo 4\n\n> Para quien espera.\n>\n> La muerte llega.\n\n",
-            );
-        },
-    );
     it("separator in text doesn't break managed zone", () => {
         assert.doesNotMatch(
             renderEntries(
@@ -369,25 +401,6 @@ describe("renderEntries", () => {
             /<!--\s*gs:(start|end)\s*-->/,
         );
     });
-    it(
-        "markdown character in text doesn't alter the format",
-        { todo: "right now Obsidian renders the '#'" },
-        () => {
-            assert.strictEqual(
-                renderEntries(
-                    [
-                        {
-                            cfi: "epubcfi(/6/2!/4/2,/1:0,/1:90)",
-                            highlightText: "# No es un título.",
-                            chapterTitle: "Capítulo 4",
-                        },
-                    ],
-                    defaultSettings,
-                ),
-                "## Capítulo 4\n\n> \\# No es un título.\n\n",
-            );
-        },
-    );
     it(
         "skips entries without text",
         { todo: "right now the result is a chapterTitle alone" },
