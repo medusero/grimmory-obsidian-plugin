@@ -23,6 +23,7 @@ import { renderEntries } from "./entriesRenderer.ts";
 import { MarkerError } from "./markerError.ts";
 import { separatorEnd, separatorStart } from "./markers.ts";
 import { buildNotePath } from "./notePathBuilder.ts";
+import { TitleError } from "./titleError.ts";
 
 export default class GrimmorySync extends Plugin {
     settings!: GrimmorySyncSettings;
@@ -190,6 +191,7 @@ export default class GrimmorySync extends Plugin {
     }
 
     async createNote(book: Book, entries: BookEntry[]): Promise<void> {
+        const notePath = buildNotePath(book.bookTitle, this.settings);
         if (
             this.settings.outputFolder &&
             !this.app.vault.getAbstractFileByPath(this.settings.outputFolder)
@@ -197,7 +199,7 @@ export default class GrimmorySync extends Plugin {
             await this.app.vault.createFolder(this.settings.outputFolder);
         }
         await this.app.vault.create(
-            buildNotePath(book.bookTitle, this.settings),
+            notePath,
             this.buildInitialContent(book.bookId, entries),
         );
     }
@@ -227,6 +229,7 @@ export default class GrimmorySync extends Plugin {
         let succeeded = 0;
         const markerErrors: string[] = [];
         const otherErrors: string[] = [];
+        const titleErrors: number[] = [];
         for (const book of books) {
             try {
                 await this.syncBook(book);
@@ -235,6 +238,8 @@ export default class GrimmorySync extends Plugin {
                 console.error(error);
                 if (error instanceof MarkerError) {
                     markerErrors.push(book.bookTitle);
+                } else if (error instanceof TitleError) {
+                    titleErrors.push(book.bookId);
                 } else {
                     otherErrors.push(book.bookTitle);
                 }
@@ -242,12 +247,18 @@ export default class GrimmorySync extends Plugin {
         }
         let message = `${succeeded} notes synced.`;
         if (markerErrors.length > 0) {
-            message += ` Check the gs markers in ${markerErrors.join(", ")}`;
+            message += `Check the gs markers in ${markerErrors.join(", ")}.\n`;
+        }
+        if (titleErrors.length > 0) {
+            message += `Rename in Grimmory the books with ids ${titleErrors.join(", ")}: their titles can't be used as file names.\n`;
         }
         if (otherErrors.length > 0) {
-            message += ` ${otherErrors.length} failed: ${otherErrors.join(", ")}`;
+            message += `${otherErrors.length} failed: ${otherErrors.join(", ")}.\n`;
         }
-        const hasErrors = otherErrors.length > 0 || markerErrors.length > 0;
+        const hasErrors =
+            otherErrors.length > 0 ||
+            markerErrors.length > 0 ||
+            titleErrors.length > 0;
         new Notice(message, hasErrors ? 0 : undefined);
     }
 }
