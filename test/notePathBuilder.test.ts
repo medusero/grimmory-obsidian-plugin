@@ -100,38 +100,36 @@ describe("buildNotePath", () => {
             assert.strictEqual(result, expected);
         });
     }
-    it(
-        "throws when title is empty",
-        { todo: "right now the result is '.md'" },
-        () => {
-            assert.throws(
-                () => buildNotePath("", { notePrefix: "", outputFolder: "" }),
-                Error,
-            );
-        },
-    );
-    it(
-        "throws when title only contains illegal characters",
-        { todo: "right now the result is '.md'" },
-        () => {
-            assert.throws(
-                () =>
-                    buildNotePath("::::", { notePrefix: "", outputFolder: "" }),
-                Error,
-            );
-        },
-    );
-    it(
-        "throws when title only contains dots",
-        {
-            todo: "right now the result is '.md'",
-        },
-        () => {
-            assert.throws(
-                () =>
-                    buildNotePath("...", { notePrefix: "", outputFolder: "" }),
-                Error,
-            );
-        },
-    );
+    it("throws when title is empty", () => {
+        assert.throws(
+            () => buildNotePath("", { notePrefix: "", outputFolder: "" }),
+            {
+                name: "TitleError",
+            },
+        );
+    });
+    it("throws when title only contains illegal characters", () => {
+        assert.throws(
+            () => buildNotePath("::::", { notePrefix: "", outputFolder: "" }),
+            {
+                name: "TitleError",
+            },
+        );
+    });
+    it("throws when title only contains dots", () => {
+        assert.throws(
+            () => buildNotePath("...", { notePrefix: "", outputFolder: "" }),
+            {
+                name: "TitleError",
+            },
+        );
+    });
+    it("throws when title only contains spaces", () => {
+        assert.throws(
+            () => buildNotePath("   ", { notePrefix: "", outputFolder: "" }),
+            {
+                name: "TitleError",
+            },
+        );
+    });
 });
