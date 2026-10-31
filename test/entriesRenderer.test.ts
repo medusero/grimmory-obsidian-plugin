@@ -377,6 +377,67 @@ const cases: RenderCase[] = [
         settings: defaultSettings,
         expected: "## Capítulo 4\n\n>   \\# No es un título.\n\n",
     },
+    {
+        description: "no chapter when there are empty highlights and notes",
+        entries: [
+            {
+                cfi: "epubcfi(/6/2!/4/58,/1:0,/1:120)",
+                highlightText: "",
+                noteText: "",
+                chapterTitle: "Capítulo 4",
+            },
+        ],
+        settings: defaultSettings,
+        expected: "",
+    },
+    {
+        description:
+            "no chapter when there are only spaces in highlights and notes",
+        entries: [
+            {
+                cfi: "epubcfi(/6/2!/4/58,/1:0,/1:120)",
+                highlightText: "  ",
+                noteText: "  ",
+                chapterTitle: "",
+            },
+        ],
+        settings: defaultSettings,
+        expected: "",
+    },
+    {
+        description: "no chapter in the first entry",
+        entries: [
+            {
+                cfi: "epubcfi(/6/2!/4/56,/1:100,/1:300)",
+                highlightText: "",
+                noteText: "",
+                chapterTitle: "Capítulo 4",
+            },
+            {
+                cfi: "epubcfi(/6/2!/4/58,/1:0,/1:120)",
+                highlightText: "El viajero cruzó el puente al amanecer.",
+                noteText: "",
+                chapterTitle: "Capítulo 4",
+            },
+        ],
+        settings: defaultSettings,
+        expected:
+            "## Capítulo 4\n\n> El viajero cruzó el puente al amanecer.\n\n",
+    },
+    {
+        description: "no noteLabel when there are only spaces in notes",
+        entries: [
+            {
+                cfi: "epubcfi(/6/2!/4/58,/1:0,/1:120)",
+                highlightText: "El viajero cruzó el puente al amanecer.",
+                noteText: "  ",
+                chapterTitle: "Capítulo 4",
+            },
+        ],
+        settings: defaultSettings,
+        expected:
+            "## Capítulo 4\n\n> El viajero cruzó el puente al amanecer.\n\n",
+    },
 ];
 
 describe("renderEntries", () => {
@@ -401,51 +462,4 @@ describe("renderEntries", () => {
             /<!--\s*gs:(start|end)\s*-->/,
         );
     });
-    it(
-        "skips entries without text",
-        { todo: "right now the result is a chapterTitle alone" },
-        () => {
-            assert.strictEqual(
-                renderEntries(
-                    [
-                        {
-                            cfi: "epubcfi(/6/8!/4/58,/1:0,/1:120)",
-                            highlightText: "",
-                            noteText: "",
-                            chapterTitle: "Capítulo 4",
-                        },
-                    ],
-                    defaultSettings,
-                ),
-                "",
-            );
-        },
-    );
-    it(
-        "skips first entry without text",
-        { todo: "right now the result is a chapterTitle alone" },
-        () => {
-            assert.strictEqual(
-                renderEntries(
-                    [
-                        {
-                            cfi: "epubcfi(/6/8!/4/56,/1:100,/1:300)",
-                            highlightText: "",
-                            noteText: "",
-                            chapterTitle: "Capítulo 4",
-                        },
-                        {
-                            cfi: "epubcfi(/6/8!/4/58,/1:0,/1:120)",
-                            highlightText:
-                                "El viajero cruzó el puente al amanecer.",
-                            noteText: "",
-                            chapterTitle: "Capítulo 4",
-                        },
-                    ],
-                    defaultSettings,
-                ),
-                "## Capítulo 4\n\n> El viajero cruzó el puente al amanecer.\n\n",
-            );
-        },
-    );
 });

@@ -18,11 +18,22 @@ function formatQuote(text: string): string {
     return "> " + result.join("\n> ");
 }
 
+function hasContent(text: string | undefined): text is string {
+    return typeof text === "string" && text.trim().length > 0;
+}
+
+function hasAnyText(entry: BookEntry): boolean {
+    const hasHighlight = hasContent(entry.highlightText);
+    const hasNote = hasContent(entry.noteText);
+    return hasHighlight || hasNote;
+}
+
 export function renderEntries(
     entries: BookEntry[],
     settings: RenderSettings,
 ): string {
-    const sorted = [...entries].sort((a, b) => compareCfi(a.cfi, b.cfi));
+    const filteredEntries = entries.filter(hasAnyText);
+    const sorted = filteredEntries.sort((a, b) => compareCfi(a.cfi, b.cfi));
     const headingPrefix = "#".repeat(settings.headingLevel);
     const breakline = "***";
     let output = "";
@@ -35,19 +46,18 @@ export function renderEntries(
         first = false;
         if (
             entry.chapterTitle !== lastChapter &&
-            typeof entry.chapterTitle === "string" &&
-            entry.chapterTitle.trim().length > 0
+            hasContent(entry.chapterTitle)
         ) {
             const chapter = escapeHtmlComments(entry.chapterTitle);
             lastChapter = entry.chapterTitle;
             output += `${headingPrefix} ${chapter}\n\n`;
         }
-        if (entry.highlightText) {
+        if (hasContent(entry.highlightText)) {
             const quote = escapeHtmlComments(entry.highlightText);
             const formattedQuote = formatQuote(quote);
             output += `${formattedQuote}\n\n`;
         }
-        if (entry.noteText) {
+        if (hasContent(entry.noteText)) {
             const note = escapeHtmlComments(entry.noteText);
             output += `${settings.noteLabel}${note}\n\n`;
         }
