@@ -29,6 +29,7 @@ import { TitleError } from "./titleError.ts";
 
 export default class GrimmorySync extends Plugin {
     settings!: GrimmorySyncSettings;
+    private pendingRefresh: Promise<void> | null = null;
     async onload(): Promise<void> {
         await this.loadSettings();
         this.addSettingTab(new GrimmorySettingTab(this.app, this));
@@ -66,7 +67,12 @@ export default class GrimmorySync extends Plugin {
         },
     ): Promise<RequestUrlResponse> {
         if (Date.now() > this.settings.tokenExpiresAt) {
-            await this.refreshSession();
+            if (!this.pendingRefresh) {
+                this.pendingRefresh = this.refreshSession().finally(() => {
+                    this.pendingRefresh = null;
+                });
+            }
+            await this.pendingRefresh;
         }
         const response = await requestUrl({
             url: this.settings.baseUrl + path,
