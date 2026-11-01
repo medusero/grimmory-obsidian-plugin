@@ -66,29 +66,7 @@ export default class GrimmorySync extends Plugin {
         },
     ): Promise<RequestUrlResponse> {
         if (Date.now() > this.settings.tokenExpiresAt) {
-            let data: AuthResponse;
-            try {
-                const response = await requestUrl({
-                    url: `${this.settings.baseUrl}/api/v1/auth/refresh`,
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        refreshToken: this.settings.refreshToken,
-                    }),
-                });
-                data = response.json as AuthResponse;
-            } catch (error) {
-                const errorMessage =
-                    error instanceof Error ? error.message : String(error);
-                throw new AuthError(errorMessage);
-            }
-            this.settings.accessToken = data.accessToken;
-            this.settings.refreshToken = data.refreshToken;
-            const seconds = data.expires;
-            const milliseconds = seconds * 1000;
-            const expires = Date.now() + milliseconds;
-            this.settings.tokenExpiresAt = expires;
-            await this.saveSettings();
+            await this.refreshSession();
         }
         const response = await requestUrl({
             url: this.settings.baseUrl + path,
@@ -99,6 +77,32 @@ export default class GrimmorySync extends Plugin {
             body: options?.body,
         });
         return response;
+    }
+
+    async refreshSession(): Promise<void> {
+        let data: AuthResponse;
+        try {
+            const response = await requestUrl({
+                url: `${this.settings.baseUrl}/api/v1/auth/refresh`,
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    refreshToken: this.settings.refreshToken,
+                }),
+            });
+            data = response.json as AuthResponse;
+        } catch (error) {
+            const errorMessage =
+                error instanceof Error ? error.message : String(error);
+            throw new AuthError(errorMessage);
+        }
+        this.settings.accessToken = data.accessToken;
+        this.settings.refreshToken = data.refreshToken;
+        const seconds = data.expires;
+        const milliseconds = seconds * 1000;
+        const expires = Date.now() + milliseconds;
+        this.settings.tokenExpiresAt = expires;
+        await this.saveSettings();
     }
 
     async getBookEntries(bookId: number): Promise<BookEntry[]> {
