@@ -35,19 +35,11 @@ export default class GrimmorySync extends Plugin {
             id: "sync-grimmory",
             name: "Sync notes",
             callback: async () => {
-                try {
-                    await this.syncAllBooks();
-                } catch {
-                    new Notice("Sync failed");
-                }
+                await this.runSync();
             },
         });
         this.addRibbonIcon("book-open-check", "Sync Grimmory", async () => {
-            try {
-                await this.syncAllBooks();
-            } catch {
-                new Notice("Sync failed");
-            }
+            await this.runSync();
         });
     }
     async loadSettings() {
@@ -216,6 +208,14 @@ export default class GrimmorySync extends Plugin {
         await this.app.vault.process(file, (fileContent) =>
             replaceManagedZone(fileContent, renderedEntries),
         );
+    }
+
+    async runSync(): Promise<void> {
+        try {
+            await this.syncAllBooks();
+        } catch {
+            new Notice("Sync failed");
+        }
     }
 
     async syncBook(book: Book): Promise<void> {
