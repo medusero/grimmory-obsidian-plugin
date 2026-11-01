@@ -145,7 +145,8 @@ export class GrimmorySettingTab extends PluginSettingTab {
                                 this.plugin.settings.tokenExpiresAt = expires;
                                 await this.plugin.saveSettings();
                                 new Notice("Login successful");
-                            } catch {
+                            } catch (error) {
+                                console.error(error);
                                 new Notice("Login failed");
                             }
                         });

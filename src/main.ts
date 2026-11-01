@@ -5,6 +5,7 @@ import {
     type RequestUrlResponse,
     type TFile,
 } from "obsidian";
+import { AuthError } from "./authError.ts";
 import { replaceManagedZone } from "./managedZoneReplacer.ts";
 import {
     DEFAULT_SETTINGS,
@@ -65,6 +66,7 @@ export default class GrimmorySync extends Plugin {
         },
     ): Promise<RequestUrlResponse> {
         if (Date.now() > this.settings.tokenExpiresAt) {
+            let data: AuthResponse;
             try {
                 const response = await requestUrl({
                     url: `${this.settings.baseUrl}/api/v1/auth/refresh`,
@@ -74,18 +76,19 @@ export default class GrimmorySync extends Plugin {
                         refreshToken: this.settings.refreshToken,
                     }),
                 });
-                const data = response.json as AuthResponse;
-                this.settings.accessToken = data.accessToken;
-                this.settings.refreshToken = data.refreshToken;
-                const seconds = data.expires;
-                const miliseconds = seconds * 1000;
-                const expires = Date.now() + miliseconds;
-                this.settings.tokenExpiresAt = expires;
-                await this.saveSettings();
+                data = response.json as AuthResponse;
             } catch (error) {
-                new Notice("You need to login again");
-                throw error;
+                const errorMessage =
+                    error instanceof Error ? error.message : String(error);
+                throw new AuthError(errorMessage);
             }
+            this.settings.accessToken = data.accessToken;
+            this.settings.refreshToken = data.refreshToken;
+            const seconds = data.expires;
+            const milliseconds = seconds * 1000;
+            const expires = Date.now() + milliseconds;
+            this.settings.tokenExpiresAt = expires;
+            await this.saveSettings();
         }
         const response = await requestUrl({
             url: this.settings.baseUrl + path,
@@ -213,8 +216,15 @@ export default class GrimmorySync extends Plugin {
     async runSync(): Promise<void> {
         try {
             await this.syncAllBooks();
-        } catch {
-            new Notice("Sync failed");
+        } catch (error) {
+            console.error(error);
+            if (error instanceof AuthError) {
+                new Notice(
+                    "Could not refresh your session. Check your connection or log in again.",
+                );
+            } else {
+                new Notice("Sync failed");
+            }
         }
     }
 
@@ -239,14 +249,16 @@ export default class GrimmorySync extends Plugin {
                 await this.syncBook(book);
                 succeeded += 1;
             } catch (error) {
-                console.error(error);
-                if (error instanceof MarkerError) {
+                if (error instanceof AuthError) {
+                    throw error;
+                } else if (error instanceof MarkerError) {
                     markerErrors.push(book.bookTitle);
                 } else if (error instanceof TitleError) {
                     titleErrors.push(book.bookId);
                 } else {
                     otherErrors.push(book.bookTitle);
                 }
+                console.error(error);
             }
         }
         let message = `${succeeded} notes synced.`;
