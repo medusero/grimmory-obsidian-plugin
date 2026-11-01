@@ -1,14 +1,15 @@
 import {
     Notice,
     Plugin,
+    requestUrl,
     type RequestUrlResponse,
     type TFile,
-    requestUrl,
 } from "obsidian";
 import { replaceManagedZone } from "./managedZoneReplacer.ts";
 import {
     DEFAULT_SETTINGS,
     GrimmorySettingTab,
+    normalizeOutputFolder,
     type GrimmorySyncSettings,
 } from "./settings.ts";
 import type {
@@ -54,6 +55,9 @@ export default class GrimmorySync extends Plugin {
             {},
             DEFAULT_SETTINGS,
             (await this.loadData()) as Partial<GrimmorySyncSettings>,
+        );
+        this.settings.outputFolder = normalizeOutputFolder(
+            this.settings.outputFolder,
         );
     }
 

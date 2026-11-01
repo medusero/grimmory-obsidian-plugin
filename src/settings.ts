@@ -1,5 +1,6 @@
 import {
     type App,
+    normalizePath,
     Notice,
     PluginSettingTab,
     requestUrl,
@@ -31,6 +32,11 @@ export const DEFAULT_SETTINGS: GrimmorySyncSettings = {
     noteLabel: "**Note:** ",
 };
 
+export function normalizeOutputFolder(path: string): string {
+    const normalized = normalizePath(path);
+    return normalized === "/" ? "" : normalized;
+}
+
 export class GrimmorySettingTab extends PluginSettingTab {
     plugin: GrimmorySync;
 
@@ -45,6 +51,9 @@ export class GrimmorySettingTab extends PluginSettingTab {
         }
         if (key === "headingLevel" && typeof value === "string") {
             value = Number(value);
+        }
+        if (key === "outputFolder" && typeof value === "string") {
+            value = normalizeOutputFolder(value);
         }
         return super.setControlValue(key, value);
     }
