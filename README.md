@@ -45,6 +45,19 @@ Run a sync from the ribbon icon (**Sync Grimmory**) or the **Grimmory Sync: Sync
 - If it already has one, only its managed zone is updated; everything else is kept.
 - To stop syncing a book, change `gs-state` from `active` to any other value in its note's frontmatter, or remove `gs-state` and `gs-book-id` and delete the plugin's `gs:start` / `gs:end` marker lines entirely.
 
+## Note properties
+
+Each note created by the plugin starts with two properties in its frontmatter:
+
+- **`gs-state`**: controls whether the note is synced. With `active`, every sync rewrites the managed zone with your latest highlights. Any other value (for example `inactive` or `paused`) leaves the note untouched, and the sync summary counts it as skipped. Set it back to `active` to resume.
+- **`gs-book-id`**: links the note to its book in Grimmory. Do not edit or remove it. Without it the plugin no longer recognises the note and will try to create a new one on the next sync. If you removed `gs-book-id` by mistake, you can restore it. Open the book in Grimmory: the number at the end of its URL is the book id. Add it back to the note's frontmatter, for example `gs-book-id: 1234`. Do this before the next sync, or the plugin will try to create a second note for the book.
+
+You can rename or move the note freely: it is found by `gs-book-id`, not by its file name.
+
+## Managed zone
+
+The plugin only rewrites the text between `<!-- gs:start -->` and `<!-- gs:end -->`. Write your own notes above or below these markers and they will be kept. If a marker is missing or duplicated, the sync skips that note, leaves it unchanged and tells you which note to check.
+
 ## License
 
 [MIT](LICENSE)
