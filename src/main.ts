@@ -27,6 +27,8 @@ import { separatorEnd, separatorStart } from "./markers.ts";
 import { buildNotePath } from "./notePathBuilder.ts";
 import { TitleError } from "./titleError.ts";
 
+type SyncResult = "created" | "updated" | "skipped";
+
 export default class GrimmorySync extends Plugin {
     settings!: GrimmorySyncSettings;
     private pendingRefresh: Promise<void> | null = null;
@@ -213,14 +215,18 @@ export default class GrimmorySync extends Plugin {
         );
     }
 
-    async updateNote(file: TFile, entries: BookEntry[]): Promise<void> {
+    async updateNote(
+        file: TFile,
+        entries: BookEntry[],
+    ): Promise<Exclude<SyncResult, "created">> {
         if (!this.isNoteActive(file)) {
-            return;
+            return "skipped";
         }
         const renderedEntries = renderEntries(entries, this.settings);
         await this.app.vault.process(file, (fileContent) =>
             replaceManagedZone(fileContent, renderedEntries),
         );
+        return "updated";
     }
 
     async runSync(): Promise<void> {
@@ -238,26 +244,31 @@ export default class GrimmorySync extends Plugin {
         }
     }
 
-    async syncBook(book: Book): Promise<void> {
+    async syncBook(book: Book): Promise<SyncResult> {
         const entries = await this.getBookEntries(book.bookId);
         const file = this.findNoteFile(book.bookId);
         if (file) {
-            await this.updateNote(file, entries);
+            return await this.updateNote(file, entries);
         } else {
             await this.createNote(book, entries);
+            return "created";
         }
     }
 
     async syncAllBooks(): Promise<void> {
         const books = await this.getBooks();
-        let succeeded = 0;
+        const counts: Record<SyncResult, number> = {
+            created: 0,
+            updated: 0,
+            skipped: 0,
+        };
         const markerErrors: string[] = [];
         const otherErrors: string[] = [];
         const titleErrors: number[] = [];
         for (const book of books) {
             try {
-                await this.syncBook(book);
-                succeeded += 1;
+                const result = await this.syncBook(book);
+                counts[result] += 1;
             } catch (error) {
                 if (error instanceof AuthError) {
                     throw error;
@@ -271,7 +282,16 @@ export default class GrimmorySync extends Plugin {
                 console.error(error);
             }
         }
-        let message = `${succeeded} notes synced.`;
+        let message = "";
+        if (counts.created > 0) {
+            message += `${counts.created} notes created.\n`;
+        }
+        if (counts.updated > 0) {
+            message += `${counts.updated} notes updated.\n`;
+        }
+        if (counts.skipped > 0) {
+            message += `${counts.skipped} notes skipped.\n`;
+        }
         if (markerErrors.length > 0) {
             message += `Check the gs markers in ${markerErrors.join(", ")}.\n`;
         }
@@ -280,6 +300,9 @@ export default class GrimmorySync extends Plugin {
         }
         if (otherErrors.length > 0) {
             message += `${otherErrors.length} failed: ${otherErrors.join(", ")}.\n`;
+        }
+        if (message.length === 0) {
+            message = "Nothing to sync.";
         }
         const hasErrors =
             otherErrors.length > 0 ||
