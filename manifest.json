@@ -1,7 +1,7 @@
 {
     "id": "grimmory-sync",
     "name": "Grimmory Sync",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "minAppVersion": "1.13.0",
     "description": "Sync book highlights and notes from a self-hosted Grimmory instance into your vault.",
     "author": "medusero",
