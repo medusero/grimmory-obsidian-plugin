@@ -27,7 +27,17 @@ import { separatorEnd, separatorStart } from "./markers.ts";
 import { buildNotePath } from "./notePathBuilder.ts";
 import { TitleError } from "./titleError.ts";
 
-type SyncResult = "created" | "updated" | "skipped";
+type SyncResult =
+    | { kind: "created" }
+    | { kind: "updated"; inactiveCopies: string[] }
+    | { kind: "skipped"; inactiveCopies: string[] }
+    | {
+          kind: "blocked";
+          inactiveCopies: string[];
+          conflictingCopies: string[];
+      };
+
+type SyncResultKind = SyncResult["kind"];
 
 export default class GrimmorySync extends Plugin {
     settings!: GrimmorySyncSettings;
@@ -218,7 +228,7 @@ export default class GrimmorySync extends Plugin {
     async updateNote(
         file: TFile,
         entries: BookEntry[],
-    ): Promise<Exclude<SyncResult, "created">> {
+    ): Promise<Extract<SyncResultKind, "updated" | "skipped">> {
         if (!this.isNoteActive(file)) {
             return "skipped";
         }
@@ -248,16 +258,17 @@ export default class GrimmorySync extends Plugin {
         const entries = await this.getBookEntries(book.bookId);
         const file = this.findNoteFile(book.bookId);
         if (file) {
-            return await this.updateNote(file, entries);
+            const updateOutcome = await this.updateNote(file, entries);
+            return { kind: updateOutcome, inactiveCopies: [] };
         } else {
             await this.createNote(book, entries);
-            return "created";
+            return { kind: "created" };
         }
     }
 
     async syncAllBooks(): Promise<void> {
         const books = await this.getBooks();
-        const counts: Record<SyncResult, number> = {
+        const counts: Record<Exclude<SyncResultKind, "blocked">, number> = {
             created: 0,
             updated: 0,
             skipped: 0,
@@ -268,7 +279,9 @@ export default class GrimmorySync extends Plugin {
         for (const book of books) {
             try {
                 const result = await this.syncBook(book);
-                counts[result] += 1;
+                if (result.kind !== "blocked") {
+                    counts[result.kind] += 1;
+                }
             } catch (error) {
                 if (error instanceof AuthError) {
                     throw error;
