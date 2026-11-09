@@ -50,6 +50,10 @@ function getFilePaths(notes: TFile[]): string[] {
     return notes.map((note) => note.path);
 }
 
+function formatPaths(paths: string[]): string {
+    return paths.map((path) => JSON.stringify(path)).join(", ");
+}
+
 export default class GrimmorySync extends Plugin {
     settings!: GrimmorySyncSettings;
     private pendingRefresh: Promise<void> | null = null;
@@ -349,6 +353,11 @@ export default class GrimmorySync extends Plugin {
                 }
                 console.error(error);
             }
+        }
+        for (const entry of inactiveCopies) {
+            console.warn(
+                `These inactive notes share the gs-book-id ${entry.bookId}:\n${formatPaths(entry.paths)}.`,
+            );
         }
         let message = "";
         if (counts.created > 0) {
