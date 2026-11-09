@@ -21,6 +21,12 @@ import type {
     BookNote,
 } from "./types.ts";
 
+import {
+    indexNotesByBookId,
+    type BookNoteIndex,
+    type NoteWithBookId,
+} from "./bookNoteIndexer.ts";
+import { resolveBookNote } from "./bookNoteResolver.ts";
 import { renderEntries } from "./entriesRenderer.ts";
 import { MarkerError } from "./markerError.ts";
 import { separatorEnd, separatorStart } from "./markers.ts";
@@ -38,6 +44,10 @@ type SyncResult =
       };
 
 type SyncResultKind = SyncResult["kind"];
+
+function getFilePaths(notes: TFile[]): string[] {
+    return notes.map((note) => note.path);
+}
 
 export default class GrimmorySync extends Plugin {
     settings!: GrimmorySyncSettings;
@@ -176,18 +186,6 @@ export default class GrimmorySync extends Plugin {
         return response.json as Book[];
     }
 
-    findNoteFile(bookId: number): TFile | undefined {
-        const checkNote = this.app.vault
-            .getMarkdownFiles()
-            .find(
-                (file) =>
-                    this.app.metadataCache.getFileCache(file)?.frontmatter?.[
-                        "gs-book-id"
-                    ] == bookId,
-            );
-        return checkNote;
-    }
-
     isNoteActive(file: TFile): boolean {
         const checkProperty =
             this.app.metadataCache.getFileCache(file)?.frontmatter?.[
@@ -254,16 +252,57 @@ export default class GrimmorySync extends Plugin {
         }
     }
 
-    async syncBook(book: Book): Promise<SyncResult> {
-        const entries = await this.getBookEntries(book.bookId);
-        const file = this.findNoteFile(book.bookId);
-        if (file) {
-            const updateOutcome = await this.updateNote(file, entries);
-            return { kind: updateOutcome, inactiveCopies: [] };
-        } else {
-            await this.createNote(book, entries);
-            return { kind: "created" };
+    async syncBook(book: Book, notes: TFile[]): Promise<SyncResult> {
+        const activeNotes = notes.filter((note) => this.isNoteActive(note));
+        const inactiveNotes = notes.filter((note) => !this.isNoteActive(note));
+        const action = resolveBookNote(activeNotes, inactiveNotes);
+        switch (action.action) {
+            case "create": {
+                const entries = await this.getBookEntries(book.bookId);
+                await this.createNote(book, entries);
+                return { kind: "created" };
+            }
+            case "update": {
+                const entries = await this.getBookEntries(book.bookId);
+                const updateOutcome = await this.updateNote(
+                    action.note,
+                    entries,
+                );
+                return {
+                    kind: updateOutcome,
+                    inactiveCopies: getFilePaths(action.inactiveCopies),
+                };
+            }
+            case "skip": {
+                return {
+                    kind: "skipped",
+                    inactiveCopies: getFilePaths(action.inactiveCopies),
+                };
+            }
+            case "duplicate": {
+                return {
+                    kind: "blocked",
+                    inactiveCopies: getFilePaths(action.inactiveCopies),
+                    conflictingCopies: getFilePaths(action.conflictingCopies),
+                };
+            }
         }
+    }
+
+    buildNoteIndex(): BookNoteIndex<TFile> {
+        const notes: NoteWithBookId<TFile>[] = this.app.vault
+            .getMarkdownFiles()
+            .map((file) => {
+                const bookId: unknown =
+                    this.app.metadataCache.getFileCache(file)?.frontmatter?.[
+                        "gs-book-id"
+                    ];
+                return {
+                    item: file,
+                    bookId,
+                };
+            });
+        return indexNotesByBookId(notes);
     }
 
     async syncAllBooks(): Promise<void> {
@@ -276,9 +315,11 @@ export default class GrimmorySync extends Plugin {
         const markerErrors: string[] = [];
         const otherErrors: string[] = [];
         const titleErrors: number[] = [];
+        const index = this.buildNoteIndex();
         for (const book of books) {
+            const notes = index.byBookId.get(book.bookId) ?? [];
             try {
-                const result = await this.syncBook(book);
+                const result = await this.syncBook(book, notes);
                 if (result.kind !== "blocked") {
                     counts[result.kind] += 1;
                 }
