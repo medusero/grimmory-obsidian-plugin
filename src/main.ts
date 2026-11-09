@@ -44,6 +44,7 @@ type SyncResult =
       };
 
 type SyncResultKind = SyncResult["kind"];
+type BookNotePaths = { bookId: number; paths: string[] };
 
 function getFilePaths(notes: TFile[]): string[] {
     return notes.map((note) => note.path);
@@ -306,12 +307,35 @@ export default class GrimmorySync extends Plugin {
         const otherErrors: string[] = [];
         const titleErrors: number[] = [];
         const index = this.buildNoteIndex();
+        const blockedBooks: BookNotePaths[] = [];
+        const inactiveCopies: BookNotePaths[] = [];
         for (const book of books) {
             const notes = index.byBookId.get(book.bookId) ?? [];
             try {
                 const result = await this.syncBook(book, notes);
-                if (result.kind !== "blocked") {
-                    counts[result.kind] += 1;
+                switch (result.kind) {
+                    case "created":
+                    case "updated":
+                    case "skipped": {
+                        counts[result.kind] += 1;
+                        break;
+                    }
+                    case "blocked": {
+                        blockedBooks.push({
+                            bookId: book.bookId,
+                            paths: result.conflictingCopies,
+                        });
+                        break;
+                    }
+                }
+                if (
+                    "inactiveCopies" in result &&
+                    result.inactiveCopies.length > 0
+                ) {
+                    inactiveCopies.push({
+                        bookId: book.bookId,
+                        paths: result.inactiveCopies,
+                    });
                 }
             } catch (error) {
                 if (error instanceof AuthError) {
