@@ -223,18 +223,11 @@ export default class GrimmorySync extends Plugin {
         );
     }
 
-    async updateNote(
-        file: TFile,
-        entries: BookEntry[],
-    ): Promise<Extract<SyncResultKind, "updated" | "skipped">> {
-        if (!this.isNoteActive(file)) {
-            return "skipped";
-        }
+    async updateNote(file: TFile, entries: BookEntry[]): Promise<void> {
         const renderedEntries = renderEntries(entries, this.settings);
         await this.app.vault.process(file, (fileContent) =>
             replaceManagedZone(fileContent, renderedEntries),
         );
-        return "updated";
     }
 
     async runSync(): Promise<void> {
@@ -264,12 +257,9 @@ export default class GrimmorySync extends Plugin {
             }
             case "update": {
                 const entries = await this.getBookEntries(book.bookId);
-                const updateOutcome = await this.updateNote(
-                    action.note,
-                    entries,
-                );
+                await this.updateNote(action.note, entries);
                 return {
-                    kind: updateOutcome,
+                    kind: "updated",
                     inactiveCopies: getFilePaths(action.inactiveCopies),
                 };
             }
