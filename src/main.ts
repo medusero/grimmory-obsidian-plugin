@@ -44,7 +44,7 @@ type SyncResult =
       };
 
 type SyncResultKind = SyncResult["kind"];
-type BookNotePaths = { bookId: number; paths: string[] };
+type BookNotePaths = { bookId: number; bookTitle: string; paths: string[] };
 
 function getFilePaths(notes: TFile[]): string[] {
     return notes.map((note) => note.path);
@@ -327,6 +327,7 @@ export default class GrimmorySync extends Plugin {
                     case "blocked": {
                         blockedBooks.push({
                             bookId: book.bookId,
+                            bookTitle: book.bookTitle,
                             paths: result.conflictingCopies,
                         });
                         break;
@@ -338,6 +339,7 @@ export default class GrimmorySync extends Plugin {
                 ) {
                     inactiveCopies.push({
                         bookId: book.bookId,
+                        bookTitle: book.bookTitle,
                         paths: result.inactiveCopies,
                     });
                 }
@@ -356,7 +358,7 @@ export default class GrimmorySync extends Plugin {
         }
         for (const entry of inactiveCopies) {
             console.warn(
-                `These inactive notes share the gs-book-id ${entry.bookId}:\n${formatPaths(entry.paths)}.`,
+                `These inactive notes share the gs-book-id ${entry.bookId} (${JSON.stringify(entry.bookTitle)}):\n${formatPaths(entry.paths)}.`,
             );
         }
         let message = "";
@@ -377,6 +379,16 @@ export default class GrimmorySync extends Plugin {
         }
         if (otherErrors.length > 0) {
             message += `${otherErrors.length} failed: ${otherErrors.join(", ")}.\n`;
+        }
+        if (index.invalid.length > 0) {
+            const paths = getFilePaths(index.invalid);
+            message += `These notes have been ignored because they have an invalid gs-book-id. It must be a positive whole number. Check the README for more information:\n${formatPaths(paths)}.\n`;
+        }
+        if (blockedBooks.length > 0) {
+            message += `These notes failed to sync because they share the same gs-book-id. Keep only one active note:\n`;
+            for (const entry of blockedBooks) {
+                message += `gs-book-id ${entry.bookId} (${JSON.stringify(entry.bookTitle)}): ${formatPaths(entry.paths)}.\n`;
+            }
         }
         if (message.length === 0) {
             message = "Nothing to sync.";
