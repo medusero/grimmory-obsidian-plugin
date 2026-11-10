@@ -58,6 +58,11 @@ You can rename or move the note freely: it is found by `gs-book-id`, not by its 
 
 The plugin only rewrites the text between `<!-- gs:start -->` and `<!-- gs:end -->`. Write your own notes above or below these markers and they will be kept. If a marker is missing or duplicated, the sync skips that note, leaves it unchanged and tells you which note to check.
 
+## Handling duplicate book identifiers
+
+There can be only one note in an `active` state for each book. If multiple active notes point to the same identifier (`gs-book-id`), synchronization for that book is blocked, though the content of the notes remains unaffected. Resolve the conflict by ensuring that only one of the notes is set to `active`.
+If there is a single active note and other inactive notes sharing the same identifier, the inactive ones are ignored, and synchronization proceeds without any issues.
+
 ## License
 
 [MIT](LICENSE)
