@@ -396,7 +396,9 @@ export default class GrimmorySync extends Plugin {
         const hasErrors =
             otherErrors.length > 0 ||
             markerErrors.length > 0 ||
-            titleErrors.length > 0;
+            titleErrors.length > 0 ||
+            index.invalid.length > 0 ||
+            blockedBooks.length > 0;
         new Notice(message, hasErrors ? 0 : undefined);
     }
 }
