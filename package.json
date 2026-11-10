@@ -1,6 +1,6 @@
 {
     "name": "grimmory-obsidian-plugin",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "description": "Obsidian's plugin to connect to Grimmory",
     "private": true,
     "type": "module",
