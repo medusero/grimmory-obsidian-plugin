@@ -51,5 +51,5 @@ jobs:
               env:
                   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
-                  tag="$GITHUB_REF_NAME"
-                  gh release create "$tag" main.js manifest.json --title "$tag" --draft --generate-notes
+                  TAG="$GITHUB_REF_NAME"
+                  gh release create "$TAG" main.js manifest.json --title "$TAG" --draft --generate-notes
