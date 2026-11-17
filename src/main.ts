@@ -101,13 +101,14 @@ export default class GrimmorySync extends Plugin {
             }
             await this.pendingRefresh;
         }
+        const body = options?.body;
         const response = await requestUrl({
             url: this.settings.baseUrl + path,
             method: options?.method ?? "GET",
             headers: {
                 Authorization: `Bearer ${this.settings.accessToken}`,
             },
-            body: options?.body,
+            ...(body !== undefined ? { body } : {}),
         });
         return response;
     }
@@ -160,7 +161,7 @@ export default class GrimmorySync extends Plugin {
                 return {
                     cfi: itemAnnotation.cfi,
                     highlightText: itemAnnotation.text,
-                    noteText: itemNote?.noteContent,
+                    ...(itemNote ? { noteText: itemNote.noteContent } : {}),
                     color: itemAnnotation.color,
                     chapterTitle: itemAnnotation.chapterTitle,
                     createdAt: itemAnnotation.createdAt,

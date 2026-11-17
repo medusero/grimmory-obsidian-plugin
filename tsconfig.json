@@ -12,6 +12,7 @@
         "allowImportingTsExtensions": true,
         "erasableSyntaxOnly": true,
         "moduleDetection": "force",
+        "exactOptionalPropertyTypes": true,
         "noUncheckedIndexedAccess": true
     },
     "include": ["src/**/*.ts"]
