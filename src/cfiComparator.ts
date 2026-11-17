@@ -11,7 +11,14 @@ export function compareCfi(a: string, b: string): number {
     const cfiB = cfiToNumbers(b);
     const length = Math.min(cfiA.length, cfiB.length);
     for (let i = 0; i < length; i++) {
-        if (cfiA[i] !== cfiB[i]) return cfiA[i] - cfiB[i];
+        const stepA = cfiA[i];
+        const stepB = cfiB[i];
+        if (stepA === undefined || stepB === undefined) {
+            break;
+        }
+        if (stepA !== stepB) {
+            return stepA - stepB;
+        }
     }
     return cfiA.length - cfiB.length;
 }
