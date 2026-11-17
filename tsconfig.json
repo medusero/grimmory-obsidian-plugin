@@ -11,7 +11,8 @@
         "verbatimModuleSyntax": true,
         "allowImportingTsExtensions": true,
         "erasableSyntaxOnly": true,
-        "moduleDetection": "force"
+        "moduleDetection": "force",
+        "noUncheckedIndexedAccess": true
     },
     "include": ["src/**/*.ts"]
 }

@@ -15,10 +15,11 @@ export function resolveBookNote<T>(
             conflictingCopies: activeNotes,
         };
     }
-    if (activeNotes.length === 1) {
+    const firstActive = activeNotes[0];
+    if (firstActive !== undefined) {
         return {
             action: "update",
-            note: activeNotes[0],
+            note: firstActive,
             inactiveCopies: inactiveNotes,
         };
     }

@@ -29,7 +29,17 @@ export function replaceManagedZone(
 ): string {
     assertValidMarkers(fileContent);
     const [before, rest] = fileContent.split(separatorStart);
+    if (before === undefined || rest === undefined) {
+        throw new MarkerError(
+            "The note could not be split by its initial marker",
+        );
+    }
     const [, after] = rest.split(separatorEnd);
+    if (after === undefined) {
+        throw new MarkerError(
+            "The note could not be split by its final marker",
+        );
+    }
     return (
         before +
         `${separatorStart}\n` +
