@@ -21,6 +21,7 @@ import type {
     BookNote,
 } from "./types.ts";
 
+import { validateAuthResponse } from "./authResponseValidator.ts";
 import {
     indexNotesByBookId,
     type BookNoteIndex,
@@ -124,11 +125,11 @@ export default class GrimmorySync extends Plugin {
                     refreshToken: this.settings.refreshToken,
                 }),
             });
-            data = response.json as AuthResponse;
+            data = validateAuthResponse(response.json);
         } catch (error) {
             const errorMessage =
                 error instanceof Error ? error.message : String(error);
-            throw new AuthError(errorMessage);
+            throw new AuthError(`Session refresh failed: ${errorMessage}`);
         }
         this.settings.accessToken = data.accessToken;
         this.settings.refreshToken = data.refreshToken;

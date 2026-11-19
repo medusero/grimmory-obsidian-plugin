@@ -7,8 +7,9 @@ import {
     type Setting,
     type SettingDefinitionItem,
 } from "obsidian";
+import { ApiResponseError } from "./apiResponseError.ts";
+import { validateAuthResponse } from "./authResponseValidator.ts";
 import type GrimmorySync from "./main.ts";
-import type { AuthResponse } from "./types.ts";
 
 export interface GrimmorySyncSettings {
     baseUrl: string;
@@ -134,7 +135,9 @@ export class GrimmorySettingTab extends PluginSettingTab {
                                         password: localPassword,
                                     }),
                                 });
-                                const data = response.json as AuthResponse;
+                                const data = validateAuthResponse(
+                                    response.json,
+                                );
                                 this.plugin.settings.accessToken =
                                     data.accessToken;
                                 this.plugin.settings.refreshToken =
@@ -147,7 +150,13 @@ export class GrimmorySettingTab extends PluginSettingTab {
                                 new Notice("Login successful");
                             } catch (error) {
                                 console.error(error);
-                                new Notice("Login failed");
+                                if (error instanceof ApiResponseError) {
+                                    new Notice(
+                                        "Login failed: The Grimmory API returned an unexpected response.\nCheck the developer console.",
+                                    );
+                                } else {
+                                    new Notice("Login failed");
+                                }
                             }
                         });
                     });
