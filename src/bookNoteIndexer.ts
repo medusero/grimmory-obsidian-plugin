@@ -1,3 +1,5 @@
+import { isValidBookId } from "./bookIdCheck.ts";
+
 export type NoteWithBookId<T> = {
     item: T;
     bookId: unknown;
@@ -10,18 +12,15 @@ export type BookNoteIndex<T> = {
 
 const onlyDigits = /^[0-9]+$/;
 
-function toPositiveId(bookId: number): number | null {
-    return Number.isSafeInteger(bookId) && bookId > 0 ? bookId : null;
-}
-
 function parseBookId(bookId: unknown): number | null {
     if (typeof bookId === "number") {
-        return toPositiveId(bookId);
+        return isValidBookId(bookId) ? bookId : null;
     }
     if (typeof bookId === "string") {
         const trimmed = bookId.trim();
         if (onlyDigits.test(trimmed)) {
-            return toPositiveId(Number(trimmed));
+            const parsedId = Number(trimmed);
+            return isValidBookId(parsedId) ? parsedId : null;
         }
     }
     return null;
