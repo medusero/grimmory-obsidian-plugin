@@ -10,12 +10,12 @@ interface RecordGuardCase {
 
 const cases: RecordGuardCase[] = [
     {
-        description: "true for an an object",
+        description: "true for an object",
         value: { key: "key", value: "value" },
         expected: true,
     },
     {
-        description: "true for an an empty object",
+        description: "true for an empty object",
         value: {},
         expected: true,
     },
@@ -25,27 +25,27 @@ const cases: RecordGuardCase[] = [
         expected: false,
     },
     {
-        description: "false for an an array",
+        description: "false for an array",
         value: ["Esto", "es", "false"],
         expected: false,
     },
     {
-        description: "false for an an empty array",
+        description: "false for an empty array",
         value: [],
         expected: false,
     },
     {
-        description: "false for an a number",
+        description: "false for a number",
         value: 42,
         expected: false,
     },
     {
-        description: "false for an a string",
+        description: "false for a string",
         value: "Esto es false",
         expected: false,
     },
     {
-        description: "false for an a boolean",
+        description: "false for a boolean",
         value: true,
         expected: false,
     },
