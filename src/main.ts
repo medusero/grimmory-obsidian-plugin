@@ -21,7 +21,9 @@ import type {
     BookNote,
 } from "./types.ts";
 
+import { ApiResponseError } from "./apiResponseError.ts";
 import { validateAuthResponse } from "./authResponseValidator.ts";
+import { validateBookList, type ValidatedBooks } from "./bookListValidator.ts";
 import {
     indexNotesByBookId,
     type BookNoteIndex,
@@ -188,9 +190,10 @@ export default class GrimmorySync extends Plugin {
         return [...fromHighlights, ...fromOrphanNotes];
     }
 
-    async getBooks(): Promise<Book[]> {
+    async getBooks(): Promise<ValidatedBooks> {
         const response = await this.authorizedRequest(`/api/v1/notebook/books`);
-        return response.json as Book[];
+        const validatedBooks = validateBookList(response.json);
+        return validatedBooks;
     }
 
     isNoteActive(file: TFile): boolean {
@@ -245,6 +248,10 @@ export default class GrimmorySync extends Plugin {
             if (error instanceof AuthError) {
                 new Notice(
                     "Could not refresh your session. Check your connection or log in again.",
+                );
+            } else if (error instanceof ApiResponseError) {
+                new Notice(
+                    "Grimmory's response has an unexpected format. Check the console for more information.",
                 );
             } else {
                 new Notice("Sync failed");
@@ -303,7 +310,7 @@ export default class GrimmorySync extends Plugin {
     }
 
     async syncAllBooks(): Promise<void> {
-        const books = await this.getBooks();
+        const validatedBooks = await this.getBooks();
         const counts: Record<Exclude<SyncResultKind, "blocked">, number> = {
             created: 0,
             updated: 0,
@@ -315,7 +322,10 @@ export default class GrimmorySync extends Plugin {
         const index = this.buildNoteIndex();
         const blockedBooks: BookNotePaths[] = [];
         const inactiveCopies: BookNotePaths[] = [];
-        for (const book of books) {
+        if (validatedBooks.invalid.length > 0) {
+            console.warn("Items ignored:", validatedBooks.invalid);
+        }
+        for (const book of validatedBooks.valid) {
             const notes = index.byBookId.get(book.bookId) ?? [];
             try {
                 const result = await this.syncBook(book, notes);
@@ -392,6 +402,9 @@ export default class GrimmorySync extends Plugin {
                 message += `gs-book-id ${entry.bookId} (${JSON.stringify(entry.bookTitle)}): ${formatPaths(entry.paths)}.\n`;
             }
         }
+        if (validatedBooks.invalid.length > 0) {
+            message += `${validatedBooks.invalid.length} books in the Grimmory response were ignored.\nCheck the developer console for more information.\n`;
+        }
         if (message.length === 0) {
             message = "Nothing to sync.";
         }
@@ -400,7 +413,8 @@ export default class GrimmorySync extends Plugin {
             markerErrors.length > 0 ||
             titleErrors.length > 0 ||
             index.invalid.length > 0 ||
-            blockedBooks.length > 0;
+            blockedBooks.length > 0 ||
+            validatedBooks.invalid.length > 0;
         new Notice(message, hasErrors ? 0 : undefined);
     }
 }
