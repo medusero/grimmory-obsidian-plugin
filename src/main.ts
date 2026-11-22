@@ -165,9 +165,9 @@ export default class GrimmorySync extends Plugin {
                     cfi: itemAnnotation.cfi,
                     highlightText: itemAnnotation.text,
                     ...(itemNote ? { noteText: itemNote.noteContent } : {}),
-                    color: itemAnnotation.color,
-                    chapterTitle: itemAnnotation.chapterTitle,
-                    createdAt: itemAnnotation.createdAt,
+                    ...(itemAnnotation.chapterTitle !== undefined
+                        ? { chapterTitle: itemAnnotation.chapterTitle }
+                        : {}),
                 };
             },
         );
@@ -182,9 +182,9 @@ export default class GrimmorySync extends Plugin {
                 return {
                     cfi: itemBookNotes.cfi,
                     noteText: itemBookNotes.noteContent,
-                    color: itemBookNotes.color,
-                    chapterTitle: itemBookNotes.chapterTitle,
-                    createdAt: itemBookNotes.createdAt,
+                    ...(itemBookNotes.chapterTitle !== undefined
+                        ? { chapterTitle: itemBookNotes.chapterTitle }
+                        : {}),
                 };
             });
         return [...fromHighlights, ...fromOrphanNotes];
