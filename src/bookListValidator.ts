@@ -1,24 +1,14 @@
-import { ApiResponseError } from "./apiResponseError.ts";
 import { isBook } from "./bookGuard.ts";
+import { type ParsedList, parseList } from "./listParser.ts";
 import type { Book } from "./types.ts";
 
-export type ValidatedBooks = {
-    valid: Book[];
-    invalid: unknown[];
-};
+function toBook(value: unknown): Book | null {
+    if (isBook(value)) {
+        return value;
+    }
+    return null;
+}
 
-export function validateBookList(value: unknown): ValidatedBooks {
-    if (!Array.isArray(value)) {
-        throw new ApiResponseError("The book list response is not an array.");
-    }
-    const valid: Book[] = [];
-    const invalid: unknown[] = [];
-    for (const item of value) {
-        if (isBook(item)) {
-            valid.push(item);
-        } else {
-            invalid.push(item);
-        }
-    }
-    return { valid, invalid };
+export function validateBookList(value: unknown): ParsedList<Book> {
+    return parseList(value, toBook, "book list");
 }
