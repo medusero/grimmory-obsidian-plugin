@@ -23,7 +23,7 @@ import type {
 
 import { ApiResponseError } from "./apiResponseError.ts";
 import { validateAuthResponse } from "./authResponseValidator.ts";
-import { validateBookList, type ValidatedBooks } from "./bookListValidator.ts";
+import { validateBookList } from "./bookListValidator.ts";
 import {
     indexNotesByBookId,
     type BookNoteIndex,
@@ -31,6 +31,7 @@ import {
 } from "./bookNoteIndexer.ts";
 import { resolveBookNote } from "./bookNoteResolver.ts";
 import { renderEntries } from "./entriesRenderer.ts";
+import type { ParsedList } from "./listParser.ts";
 import { MarkerError } from "./markerError.ts";
 import { separatorEnd, separatorStart } from "./markers.ts";
 import { buildNotePath } from "./notePathBuilder.ts";
@@ -190,7 +191,7 @@ export default class GrimmorySync extends Plugin {
         return [...fromHighlights, ...fromOrphanNotes];
     }
 
-    async getBooks(): Promise<ValidatedBooks> {
+    async getBooks(): Promise<ParsedList<Book>> {
         const response = await this.authorizedRequest(`/api/v1/notebook/books`);
         const validatedBooks = validateBookList(response.json);
         return validatedBooks;

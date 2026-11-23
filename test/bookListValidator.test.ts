@@ -1,14 +1,13 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import {
-    type ValidatedBooks,
-    validateBookList,
-} from "../src/bookListValidator.ts";
+import { validateBookList } from "../src/bookListValidator.ts";
+import type { ParsedList } from "../src/listParser.ts";
+import type { Book } from "../src/types.ts";
 
 interface ArrayListCase {
     description: string;
     value: unknown;
-    expected: ValidatedBooks;
+    expected: ParsedList<Book>;
 }
 
 interface NonArrayListCase {
