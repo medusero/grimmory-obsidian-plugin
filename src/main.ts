@@ -21,6 +21,7 @@ import type {
     BookNote,
 } from "./types.ts";
 
+import { validateAnnotationList } from "./annotationListValidator.ts";
 import { ApiResponseError } from "./apiResponseError.ts";
 import { validateAuthResponse } from "./authResponseValidator.ts";
 import { validateBookList } from "./bookListValidator.ts";
@@ -29,6 +30,7 @@ import {
     type BookNoteIndex,
     type NoteWithBookId,
 } from "./bookNoteIndexer.ts";
+import { validateBookNoteList } from "./bookNoteListValidator.ts";
 import { resolveBookNote } from "./bookNoteResolver.ts";
 import { renderEntries } from "./entriesRenderer.ts";
 import type { ParsedList } from "./listParser.ts";
@@ -154,13 +156,25 @@ export default class GrimmorySync extends Plugin {
             promiseA,
             promiseB,
         ]);
-        const annotations = requestAnnotations.json as Annotation[];
-        const bookNotes = requestBookNotes.json as BookNote[];
-        const fromHighlights: BookEntry[] = annotations.map(
+        const annotations = validateAnnotationList(requestAnnotations.json);
+        const bookNotes = validateBookNoteList(requestBookNotes.json);
+        if (annotations.invalid.length > 0) {
+            console.warn(
+                `Ignored annotations for book ${bookId}`,
+                annotations.invalid,
+            );
+        }
+        if (bookNotes.invalid.length > 0) {
+            console.warn(
+                `Ignored book notes for book ${bookId}:`,
+                bookNotes.invalid,
+            );
+        }
+        const fromHighlights: BookEntry[] = annotations.valid.map(
             (itemAnnotation: Annotation) => {
-                const itemNote = bookNotes.find(
+                const itemNote = bookNotes.valid.find(
                     (itemBookNotes: BookNote) =>
-                        itemBookNotes.cfi == itemAnnotation.cfi,
+                        itemBookNotes.cfi === itemAnnotation.cfi,
                 );
                 return {
                     cfi: itemAnnotation.cfi,
@@ -172,9 +186,9 @@ export default class GrimmorySync extends Plugin {
                 };
             },
         );
-        const fromOrphanNotes: BookEntry[] = bookNotes
+        const fromOrphanNotes: BookEntry[] = bookNotes.valid
             .filter((itemBookNotes: BookNote) => {
-                return !annotations.some(
+                return !annotations.valid.some(
                     (itemAnnotation: Annotation) =>
                         itemBookNotes.cfi === itemAnnotation.cfi,
                 );
