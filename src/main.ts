@@ -37,6 +37,7 @@ import type { ParsedList } from "./listParser.ts";
 import { MarkerError } from "./markerError.ts";
 import { separatorEnd, separatorStart } from "./markers.ts";
 import { buildNotePath } from "./notePathBuilder.ts";
+import { toSettings } from "./settingsParser.ts";
 import { TitleError } from "./titleError.ts";
 
 type SyncResult =
@@ -78,11 +79,7 @@ export default class GrimmorySync extends Plugin {
         });
     }
     async loadSettings() {
-        this.settings = Object.assign(
-            {},
-            DEFAULT_SETTINGS,
-            (await this.loadData()) as Partial<GrimmorySyncSettings>,
-        );
+        this.settings = toSettings(await this.loadData(), DEFAULT_SETTINGS);
         this.settings.outputFolder = normalizeOutputFolder(
             this.settings.outputFolder,
         );
