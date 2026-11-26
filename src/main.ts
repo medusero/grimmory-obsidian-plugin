@@ -24,6 +24,7 @@ import type {
 import { validateAnnotationList } from "./annotationListValidator.ts";
 import { ApiResponseError } from "./apiResponseError.ts";
 import { validateAuthResponse } from "./authResponseValidator.ts";
+import { normalizeBaseUrl } from "./baseUrlNormalizer.ts";
 import { validateBookList } from "./bookListValidator.ts";
 import {
     indexNotesByBookId,
@@ -80,6 +81,7 @@ export default class GrimmorySync extends Plugin {
     }
     async loadSettings() {
         this.settings = toSettings(await this.loadData(), DEFAULT_SETTINGS);
+        this.settings.baseUrl = normalizeBaseUrl(this.settings.baseUrl);
         this.settings.outputFolder = normalizeOutputFolder(
             this.settings.outputFolder,
         );
