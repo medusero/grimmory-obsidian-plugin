@@ -9,6 +9,8 @@ import {
 } from "obsidian";
 import { ApiResponseError } from "./apiResponseError.ts";
 import { validateAuthResponse } from "./authResponseValidator.ts";
+import { isValidBaseUrl } from "./baseUrlCheck.ts";
+import { normalizeBaseUrl } from "./baseUrlNormalizer.ts";
 import type GrimmorySync from "./main.ts";
 
 export interface GrimmorySyncSettings {
@@ -48,7 +50,7 @@ export class GrimmorySettingTab extends PluginSettingTab {
 
     async setControlValue(key: string, value: unknown): Promise<void> {
         if (key === "baseUrl" && typeof value === "string") {
-            value = value.trim();
+            value = normalizeBaseUrl(value);
         }
         if (key === "headingLevel" && typeof value === "string") {
             value = Number(value);
@@ -79,11 +81,9 @@ export class GrimmorySettingTab extends PluginSettingTab {
                     key: "baseUrl",
                     placeholder: "Your Grimmory instance",
                     validate: (value: string) =>
-                        /^(https?:\/\/)?((([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,})|(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}))(:\d{1,5})?(\/.*)?$/i.test(
-                            value.trim(),
-                        )
+                        isValidBaseUrl(normalizeBaseUrl(value))
                             ? undefined
-                            : "It has to be a valid URL",
+                            : "Enter a URL with the http or https protocol",
                 },
             },
             {
